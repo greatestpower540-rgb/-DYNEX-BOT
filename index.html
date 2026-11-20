@@ -5,296 +5,142 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#050805">
-  <title>DYNEX BOT</title>
 
-  <style>
-    :root {
-      --black: #050805;
-      --panel: #101810;
-      --green: #39ff14;
-      --white: #f4fff4;
-      --muted: #a3b3a3;
-      --border: #29472c;
-    }
+  <title>DYNEX BOT - Automation Dashboard</title>
 
-    * { box-sizing: border-box; }
+  <meta name="description" content="DYNEX BOT WhatsApp automation platform.">
 
-    body {
-      margin: 0;
-      background: var(--black);
-      color: var(--white);
-      font-family: Arial, sans-serif;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 6%;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .logo {
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: 1px;
-    }
-
-    .logo span, .green { color: var(--green); }
-
-    .label {
-      color: var(--green);
-      border: 1px solid var(--green);
-      border-radius: 20px;
-      padding: 7px 12px;
-      font-size: 11px;
-    }
-
-    main {
-      width: 100%;
-      max-width: 950px;
-      margin: auto;
-      padding: 25px 16px;
-    }
-
-    .hero {
-      text-align: center;
-      padding: 65px 5px 45px;
-    }
-
-    .eyebrow {
-      color: var(--green);
-      letter-spacing: 3px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-
-    h1 {
-      font-size: clamp(40px, 9vw, 68px);
-      line-height: 1.1;
-      margin: 22px 0;
-    }
-
-    h1 span {
-      color: var(--green);
-      text-shadow: 0 0 25px #39ff1440;
-    }
-
-    p {
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
-    .hero p {
-      max-width: 520px;
-      margin: 0 auto 25px;
-    }
-
-    .button {
-      display: inline-block;
-      padding: 14px 18px;
-      border-radius: 8px;
-      background: var(--green);
-      border: 1px solid var(--green);
-      color: #061006;
-      font-weight: bold;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    .button.secondary {
-      color: var(--green);
-      background: transparent;
-    }
-
-    .status {
-      padding: 17px;
-      margin-bottom: 35px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--panel);
-    }
-
-    .status strong { color: var(--green); }
-
-    .section-heading { margin-bottom: 20px; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .card {
-      padding: 20px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--panel);
-    }
-
-    .card:hover { border-color: var(--green); }
-
-    .icon {
-      font-size: 30px;
-      margin-bottom: 12px;
-    }
-
-    .card p {
-      font-size: 13px;
-      min-height: 55px;
-    }
-
-    .card .button {
-      width: 100%;
-      font-size: 12px;
-    }
-
-    #message {
-      display: none;
-      padding: 18px;
-      margin-top: 20px;
-      border: 1px solid var(--green);
-      border-radius: 10px;
-      line-height: 1.6;
-    }
-
-    .about {
-      margin-top: 35px;
-      padding: 23px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--panel);
-    }
-
-    footer {
-      padding: 28px 15px;
-      margin-top: 35px;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.9;
-    }
-
-    @media (max-width: 420px) {
-      header { padding: 16px 12px; }
-      .logo { font-size: 20px; }
-      main { padding: 20px 12px; }
-      .grid { gap: 10px; }
-      .card { padding: 13px; }
-      .card h3 { font-size: 15px; }
-      .card p { font-size: 12px; }
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-  <header>
-    <div class="logo">DYNEX <span>BOT</span></div>
-    <div class="label">BOT HUB</div>
-  </header>
 
-  <main>
-    <section class="hero">
-      <div class="eyebrow">WELCOME TO DYNEX</div>
-      <h1>YOUR BOT.<br><span>YOUR CONTROL.</span></h1>
-      <p>
-        Discover your WhatsApp bot tools in one place.
-        Connect your services and manage your bot from
-        a clean, mobile-friendly dashboard.
-      </p>
-      <a class="button" href="#tools">EXPLORE TOOLS ↓</a>
-    </section>
+<div class="app">
 
-    <div class="status">
-      <strong>● DYNEX BOT</strong>
-      <p>
-        Website interface is running. Real WhatsApp
-        connections will be added after backend setup.
-      </p>
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      DYNEX <span>BOT</span>
     </div>
 
-    <section id="tools">
-      <div class="section-heading">
-        <h2>BOT <span class="green">TOOLS</span></h2>
-        <p>Select a feature to explore.</p>
+    <div class="sidebar-label">MAIN MENU</div>
+
+    <nav class="nav-menu">
+
+      <a href="#dashboard" class="nav-link active" data-page="dashboard">
+        <span>⌂</span> Dashboard
+      </a>
+
+      <a href="#connect" class="nav-link" data-page="connect">
+        <span>🔗</span> WhatsApp Connect
+      </a>
+
+      <a href="#bots" class="nav-link" data-page="bots">
+        <span>🤖</span> My Bots
+      </a>
+
+      <div class="sidebar-label">AUTOMATION</div>
+
+      <a href="#auto-reply" class="nav-link" data-page="autoReply">
+        <span>💬</span> Auto Reply
+      </a>
+
+      <a href="#ai" class="nav-link" data-page="ai">
+        <span>🧠</span> AI Assistant
+      </a>
+
+      <a href="#scheduler" class="nav-link" data-page="scheduler">
+        <span>🕒</span> Scheduler
+      </a>
+
+      <a href="#campaigns" class="nav-link" data-page="campaigns">
+        <span>📨</span> Campaigns
+      </a>
+
+      <div class="sidebar-label">MANAGEMENT</div>
+
+      <a href="#analytics" class="nav-link" data-page="analytics">
+        <span>📊</span> Analytics
+      </a>
+
+      <a href="#settings" class="nav-link" data-page="settings">
+        <span>⚙️</span> Settings
+      </a>
+
+      <a href="#account" class="nav-link" data-page="account">
+        <span>👤</span> My Account
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div style="border-top:1px solid var(--border);padding-top:17px">
+        <p style="font-size:11px;color:var(--muted)">
+          DYNEX BOT PLATFORM
+        </p>
+        <p style="font-size:11px;color:var(--green);margin-top:7px">
+          VERSION 1.0.0
+        </p>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+
+  <div class="main-content">
+
+    <header class="topbar">
+
+      <div style="display:flex;align-items:center;gap:15px">
+
+        <button class="menu-toggle" id="menuToggle">
+          ☰
+        </button>
+
+        <div class="topbar-title" id="pageTitle">
+          Dashboard
+        </div>
+
       </div>
 
-      <div class="grid">
-        <article class="card">
-          <div class="icon">🔗</div>
-          <h3>WhatsApp Pairing</h3>
-          <p>Connect your WhatsApp account through a secure backend.</p>
-          <button class="button" onclick="showMessage('Pairing will be enabled after the backend is connected.')">
-            CONNECT WHATSAPP
-          </button>
-        </article>
+      <div class="topbar-right">
 
-        <article class="card">
-          <div class="icon">⚙️</div>
-          <h3>Bot Dashboard</h3>
-          <p>Manage your bot settings and connection status.</p>
-          <button class="button secondary" onclick="showMessage('Bot management will be available after backend setup.')">
-            MANAGE BOT
-          </button>
-        </article>
+        <span style="font-size:12px;color:var(--muted)">
+          DYNEX USER
+        </span>
 
-        <article class="card">
-          <div class="icon">📡</div>
-          <h3>Channel Tools</h3>
-          <p>Explore utilities for supported messaging features.</p>
-          <button class="button secondary" onclick="showMessage('Channel tools are planned for a future update.')">
-            EXPLORE
-          </button>
-        </article>
+        <div class="user-avatar">D</div>
 
-        <article class="card">
-          <div class="icon">📖</div>
-          <h3>Documentation</h3>
-          <p>Learn how to configure and manage your bot.</p>
-          <button class="button secondary" onclick="showMessage('Documentation will be added as features are developed.')">
-            LEARN MORE
-          </button>
-        </article>
       </div>
 
-      <div id="message" role="status" aria-live="polite">
-        <p id="messageText"></p>
-        <button class="button secondary" onclick="hideMessage()">CLOSE</button>
-      </div>
-    </section>
+    </header>
 
-    <section class="about">
-      <div class="eyebrow">ABOUT DYNEX</div>
-      <h2>Built for your next idea.</h2>
-      <p>
-        DYNEX BOT is an independent bot dashboard project.
-        Accounts, bot sessions and real pairing features
-        require a secure backend.
-      </p>
-    </section>
-  </main>
+    <!-- DYNAMIC PAGE CONTENT -->
 
-  <footer>
-    <strong>DYNEX <span class="green">BOT</span></strong><br>
-    Independent community project.<br>
-    Only connect accounts you own or have permission to use.
-    <br>© <span id="year"></span> DYNEX BOT
-  </footer>
+    <main class="page-content" id="pageContent">
 
-  <script>
-    document.getElementById("year").textContent =
-      new Date().getFullYear();
+      <section class="welcome-banner">
+        <h2>Welcome to <span class="green">DYNEX BOT</span></h2>
+        <p>Your WhatsApp automation dashboard is loading...</p>
+      </section>
 
-    function showMessage(message) {
-      document.getElementById("messageText").textContent = message;
-      document.getElementById("message").style.display = "block";
-    }
+    </main>
 
-    function hideMessage() {
-      document.getElementById("message").style.display = "none";
-    }
-  </script>
+  </div>
+
+</div>
+
+<!-- NOTIFICATION -->
+
+<div class="toast" id="dynexToast" role="status" aria-live="polite"></div>
+
+<!-- JAVASCRIPT FILES -->
+
+<script src="js/dashboard.js"></script>
+<script src="js/app.js"></script>
+
 </body>
-  </html>
-  
+</html>
