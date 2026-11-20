@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050805">
+  <title>DYNEX BOT — Admin Control</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="admin-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="brand">
+      <span class="brand-icon">D</span>
+      <span>DYNEX <b>BOT</b>
+        <small>ADMIN CONTROL</small>
+      </span>
+    </a>
+
+    <p class="side-label">CONTROL CENTER</p>
+
+    <nav class="admin-nav">
+      <button class="active" data-view="overview">◫ Overview</button>
+      <button data-view="users">♙ User Accounts</button>
+      <button data-view="connections">⌁ WhatsApp Connections</button>
+      <button data-view="plans">◇ Plans & Subscriptions</button>
+      <button data-view="payments">▤ Payments</button>
+      <button data-view="announcements">▧ Announcements</button>
+      <button data-view="audit">≡ Activity Log</button>
+      <button data-view="settings">⚙ Platform Settings</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <span class="status-dot"></span> Admin Interface
+      <a href="index.html">← Back to Dashboard</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button id="menuToggle" class="menu-toggle">☰</button>
+        <div>
+          <small>DYNEX BOT / ADMIN</small>
+          <h1 id="pageTitle">Overview</h1>
+        </div>
+      </div>
+
+      <div class="admin-profile">
+        <span>● ADMIN CONSOLE</span>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+
+    <div class="setup-notice">
+      <strong>Platform setup:</strong>
+      Admin authentication and database integration are still required.
+      This interface does not yet control live accounts or payments.
+    </div>
+
+    <section id="adminContent"></section>
+
+    <footer>
+      DYNEX BOT ADMIN ·
+      <span>CONTROL WITH ACCOUNTABILITY</span>
+    </footer>
+
+  </main>
+</div>
+
+<script src="js/admin.js"></script>
+</body>
+        </html>
+        
