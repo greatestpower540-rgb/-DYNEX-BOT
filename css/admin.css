@@ -1,0 +1,394 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #070a08;
+  --panel: #101612;
+  --panel2: #151e18;
+  --green: #a3ff45;
+  --green-dark: #79d92b;
+  --text: #f4f8f3;
+  --muted: #8b988e;
+  --border: #26332a;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+button, a {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+  width: 255px;
+  min-width: 255px;
+  background: #0b100d;
+  border-right: 1px solid var(--border);
+  padding: 28px 17px;
+  display: flex;
+  flex-direction: column;
+  transition: transform .3s ease;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 48px;
+}
+
+.brand b {
+  color: var(--green);
+}
+
+.brand small {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-top: 5px;
+}
+
+.brand-icon {
+  width: 43px;
+  height: 43px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: var(--green);
+  color: #071006;
+  font-size: 25px;
+  font-weight: 900;
+  box-shadow: 0 0 20px #a3ff4530;
+}
+
+.side-label {
+  color: #657268;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0 0 15px 10px;
+}
+
+.admin-nav {
+  display: grid;
+  gap: 7px;
+}
+
+.admin-nav button {
+  width: 100%;
+  text-align: left;
+  padding: 13px 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #aab5ad;
+  font-size: 13px;
+  transition: .2s;
+}
+
+.admin-nav button:hover,
+.admin-nav button.active {
+  background: #19251b;
+  border-color: #334b2b;
+  color: var(--green);
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding-top: 25px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  margin-right: 7px;
+  box-shadow: 0 0 10px var(--green);
+}
+
+.sidebar-bottom a {
+  display: block;
+  margin-top: 18px;
+  color: var(--green);
+}
+
+/* MAIN AREA */
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 35px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 28px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.topbar small {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.topbar h1 {
+  font-size: 25px;
+  margin-top: 6px;
+}
+
+.menu-toggle {
+  display: none;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  color: var(--green);
+  border-radius: 9px;
+  padding: 9px 12px;
+  font-size: 20px;
+}
+
+.admin-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.avatar {
+  width: 39px;
+  height: 39px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green);
+  color: #071006;
+  font-weight: 800;
+  font-size: 17px;
+}
+
+.setup-notice {
+  background: #171b12;
+  border: 1px solid #46542b;
+  border-left: 4px solid var(--green);
+  color: #c5d0bd;
+  border-radius: 10px;
+  padding: 15px 17px;
+  margin-bottom: 27px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.setup-notice strong {
+  color: var(--green);
+}
+
+/* CONTENT */
+
+#adminContent {
+  min-height: 400px;
+}
+
+#adminContent h2 {
+  font-size: 23px;
+  margin-bottom: 9px;
+}
+
+#adminContent h3 {
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+#adminContent p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+#adminContent section,
+#adminContent .panel,
+#adminContent .admin-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin: 15px 0;
+}
+
+#adminContent button {
+  background: var(--green);
+  color: #071006;
+  border: 0;
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+#adminContent button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+#adminContent input,
+#adminContent select,
+#adminContent textarea {
+  width: 100%;
+  background: #090e0b;
+  border: 1px solid var(--border);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 7px 0 14px;
+  outline: none;
+}
+
+#adminContent input:focus,
+#adminContent select:focus,
+#adminContent textarea:focus {
+  border-color: var(--green);
+}
+
+#adminContent table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+#adminContent th,
+#adminContent td {
+  padding: 13px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+#adminContent th {
+  color: var(--green);
+  font-weight: 700;
+}
+
+#adminContent td {
+  color: #c4cec6;
+}
+
+/* FOOTER */
+
+footer {
+  border-top: 1px solid var(--border);
+  margin-top: 50px;
+  padding: 20px 0;
+  color: #738078;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+footer span {
+  color: var(--green);
+}
+
+/* MOBILE */
+
+@media (max-width: 800px) {
+  .sidebar {
+    position: fixed;
+    z-index: 20;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    box-shadow: 15px 0 40px #0008;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    padding: 20px 16px;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .topbar h1 {
+    font-size: 21px;
+  }
+
+  .admin-profile span {
+    display: none;
+  }
+
+  .setup-notice {
+    font-size: 12px;
+  }
+
+  #adminContent table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 420px) {
+  .main-content {
+    padding: 16px 12px;
+  }
+
+  .topbar {
+    gap: 8px;
+  }
+
+  .topbar h1 {
+    font-size: 18px;
+  }
+
+  .brand {
+    margin-bottom: 35px;
+  }
+    }
