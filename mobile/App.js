@@ -2,135 +2,221 @@
 import React, { useState } from "react";
 import {
   SafeAreaView,
-  StatusBar,
   View,
   Text,
   TextInput,
   TouchableOpacity,
   ScrollView,
+  StatusBar,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  Alert,
   StyleSheet,
-  Alert
 } from "react-native";
-
-function DynexRobot() {
-  return (
-    <View style={styles.glow}>
-      <View style={styles.robot}>
-        <View style={styles.head}>
-          <View style={styles.eyes}>
-            <View style={styles.eye} />
-            <View style={styles.eye} />
-          </View>
-        </View>
-        <View style={styles.body}>
-          <Text style={styles.robotD}>D</Text>
-        </View>
-        <View style={styles.base} />
-      </View>
-    </View>
-  );
-}
 
 export default function App() {
   const [message, setMessage] = useState("");
+  const [search, setSearch] = useState("");
+  const [showTools, setShowTools] = useState(false);
 
-  function sendMessage() {
+  const comingSoon = (feature) => {
+    Alert.alert("DYNEX BOT", feature + " will be activated in a future update.");
+  };
+
+  const sendMessage = () => {
     if (!message.trim()) return;
+
     Alert.alert(
       "DYNEX BOT",
-      "Your message has been entered. AI connection will be added in the next development stage."
+      "Your message is ready. The secure AI connection is the next development stage."
     );
     setMessage("");
-  }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8F9F6" />
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+        {/* TOP HEADER */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.darkCircle}>
-            <Text style={styles.headerIcon}>☰</Text>
+          <TouchableOpacity
+            style={styles.profileButton}
+            onPress={() => comingSoon("Your profile")}
+          >
+            <Image
+              source={require("./assets/icon.png")}
+              style={styles.profileImage}
+            />
           </TouchableOpacity>
 
-          <Text style={styles.brand}>
-            DYNEX <Text style={styles.green}>BOT</Text>
-          </Text>
+          <View style={styles.searchGroup}>
+            <View style={styles.searchBox}>
+              <Text style={styles.searchIcon}>⌕</Text>
+              <TextInput
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Search"
+                placeholderTextColor="#777777"
+                style={styles.searchInput}
+              />
+            </View>
 
-          <TouchableOpacity style={styles.darkCircle}>
-            <Text style={styles.headerIcon}>⋮</Text>
+            <TouchableOpacity
+              style={styles.toolsSwitch}
+              onPress={() => setShowTools(!showTools)}
+            >
+              <Text style={styles.switchIcon}>▣</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={styles.libraryButton}
+            onPress={() => comingSoon("Chat library")}
+          >
+            <Text style={styles.libraryIcon}>▤</Text>
           </TouchableOpacity>
         </View>
 
+        {showTools && (
+          <View style={styles.toolsPanel}>
+            <Text style={styles.toolsTitle}>DYNEX AI TOOLS</Text>
+            <TouchableOpacity onPress={() => comingSoon("AI tools")}>
+              <Text style={styles.toolsOption}>Explore available tools →</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* MAIN CONTENT */}
         <ScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <View style={styles.hero}>
-            <DynexRobot />
-            <Text style={styles.title}>Hello, I'm DYNEX</Text>
-            <Text style={styles.subtitle}>
-              Your intelligent AI assistant. What can I help you with today?
+          {/* INTRODUCTION */}
+          <View style={styles.intro}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => comingSoon("Introduction")}
+            >
+              <Text style={styles.closeText}>×</Text>
+            </TouchableOpacity>
+
+            <View style={styles.robotFrame}>
+              <Image
+                source={require("./assets/icon.png")}
+                style={styles.robotImage}
+                resizeMode="cover"
+              />
+            </View>
+
+            <Text style={styles.introTitle}>
+              Introducing DYNEX Assistant
             </Text>
+
+            <Text style={styles.introDescription}>
+              Your intelligent companion for thinking, creating and getting
+              things done.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.exploreButton}
+              onPress={() => comingSoon("DYNEX Explore")}
+            >
+              <Text style={styles.exploreText}>Explore</Text>
+            </TouchableOpacity>
           </View>
 
-          <Text style={styles.sectionTitle}>Recently updated</Text>
+          {/* RECENT CONVERSATIONS */}
+          <View style={styles.recentSection}>
+            <View style={styles.recentHeader}>
+              <Text style={styles.recentTitle}>Recently updated</Text>
+              <TouchableOpacity onPress={() => comingSoon("All conversations")}>
+                <Text style={styles.seeAll}>See all</Text>
+              </TouchableOpacity>
+            </View>
 
-          <TouchableOpacity style={styles.history}>
-            <View style={styles.checkCircle}>
-              <Text style={styles.check}>✓</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.historyTitle}>Welcome to DYNEX BOT</Text>
-              <Text style={styles.historySub}>Start a new conversation</Text>
-            </View>
-            <Text style={styles.more}>⋮</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.recentItem}
+              onPress={() => comingSoon("Recent conversation")}
+            >
+              <View style={styles.checkCircle}>
+                <Text style={styles.checkText}>✓</Text>
+              </View>
+
+              <View style={styles.recentDetails}>
+                <Text style={styles.recentName}>Welcome to DYNEX</Text>
+                <Text style={styles.recentDate}>Start a new conversation</Text>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => comingSoon("Conversation options")}
+              >
+                <Text style={styles.moreIcon}>⋮</Text>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
 
+        {/* MESSAGE COMPOSER */}
         <View style={styles.composer}>
           <TextInput
+            style={styles.messageInput}
+            placeholder="Ask anything..."
+            placeholderTextColor="#777777"
             value={message}
             onChangeText={setMessage}
-            placeholder="Ask anything..."
-            placeholderTextColor="#858B85"
             multiline
-            style={styles.input}
           />
 
-          <View style={styles.controls}>
+          <View style={styles.composerControls}>
             <TouchableOpacity
-              style={styles.control}
-              onPress={() => Alert.alert("DYNEX", "Attachments coming later.")}
+              style={styles.controlButton}
+              onPress={() => comingSoon("Attachments")}
             >
-              <Text style={styles.controlText}>＋</Text>
+              <Text style={styles.plusIcon}>＋</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.model}
-              onPress={() => Alert.alert("DYNEX", "Model options coming later.")}
+              style={styles.modelButton}
+              onPress={() => comingSoon("AI model selection")}
             >
               <Text style={styles.modelText}>Model</Text>
             </TouchableOpacity>
 
-            <View style={{ flex: 1 }} />
+            <View style={styles.controlSpacer} />
 
-            <TouchableOpacity style={styles.control}>
-              <Text style={styles.controlText}>⌘</Text>
+            <TouchableOpacity
+              style={styles.controlButton}
+              onPress={() => comingSoon("AI tools")}
+            >
+              <Text style={styles.toolIcon}>⚙</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.control}>
-              <Text style={styles.controlText}>♩</Text>
+            <TouchableOpacity
+              style={styles.controlButton}
+              onPress={() => comingSoon("Voice input")}
+            >
+              <Text style={styles.micIcon}>♩</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.send} onPress={sendMessage}>
-              <Text style={styles.sendText}>↑</Text>
+            <TouchableOpacity
+              style={styles.voiceButton}
+              onPress={() => comingSoon("Voice assistant")}
+            >
+              <Text style={styles.voiceIcon}>▥</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={sendMessage}
+            >
+              <Text style={styles.sendIcon}>↑</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -140,178 +226,314 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F8F9F6" },
-  container: { flex: 1 },
+  safe: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
   header: {
-    height: 68,
+    height: 82,
     paddingHorizontal: 18,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    gap: 10,
   },
-  darkCircle: {
-    width: 43,
-    height: 43,
-    borderRadius: 25,
-    backgroundColor: "#151C17",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  headerIcon: { color: "#FFFFFF", fontSize: 23 },
-  brand: { fontSize: 20, fontWeight: "900", color: "#172019" },
-  green: { color: "#20A847" },
-  scroll: { flex: 1 },
-  content: { paddingHorizontal: 20, paddingBottom: 190 },
-  hero: { alignItems: "center", paddingTop: 65, paddingBottom: 65 },
-  glow: {
-    width: 170,
-    height: 170,
-    borderRadius: 90,
-    backgroundColor: "#DDF6E2",
-    borderWidth: 2,
-    borderColor: "#8CE99F",
+  profileButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#F5F8F5",
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 27,
-    elevation: 9
   },
-  robot: {
-    width: 145,
-    height: 145,
-    borderRadius: 75,
-    backgroundColor: "#07160C",
-    borderWidth: 3,
-    borderColor: "#36DB60",
-    alignItems: "center",
-    justifyContent: "center"
+  profileImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
-  head: {
-    width: 88,
-    height: 69,
-    borderRadius: 23,
-    backgroundColor: "#25382A",
-    borderWidth: 3,
-    borderColor: "#9AB6A0",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  eyes: {
-    width: 69,
-    height: 43,
-    borderRadius: 14,
-    backgroundColor: "#020704",
+  searchGroup: {
+    flex: 1,
+    height: 56,
+    backgroundColor: "#F7F7F7",
+    borderRadius: 30,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-evenly"
+    padding: 4,
   },
-  eye: {
-    width: 9,
-    height: 20,
-    borderRadius: 8,
-    backgroundColor: "#59FF78",
-    elevation: 8
-  },
-  body: {
-    width: 100,
-    height: 49,
-    marginTop: -2,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    backgroundColor: "#304A36",
-    borderWidth: 2,
-    borderColor: "#83A98B",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  robotD: { color: "#68FF86", fontSize: 27, fontWeight: "900" },
-  base: {
-    width: 75,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: "#63F77D",
-    marginTop: 3
-  },
-  title: {
-    fontSize: 29,
-    fontWeight: "900",
-    color: "#202820",
-    textAlign: "center"
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#777F77",
-    lineHeight: 24,
-    textAlign: "center",
-    marginTop: 10,
-    maxWidth: 320
-  },
-  sectionTitle: {
-    fontSize: 22,
-    color: "#707970",
-    fontWeight: "800",
-    marginBottom: 17
-  },
-  history: {
+  searchBox: {
+    flex: 1,
+    height: 48,
     backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 14,
+    borderRadius: 26,
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+  searchIcon: {
+    fontSize: 29,
+    color: "#222222",
+    marginRight: 5,
+  },
+  searchInput: {
+    flex: 1,
+    color: "#222222",
+    fontSize: 15,
+  },
+  toolsSwitch: {
+    width: 54,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  switchIcon: {
+    fontSize: 23,
+    color: "#333333",
+  },
+  libraryButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#F7F7F7",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  libraryIcon: {
+    fontSize: 27,
+    color: "#222222",
+  },
+  toolsPanel: {
+    marginHorizontal: 20,
+    padding: 16,
+    borderRadius: 18,
+    backgroundColor: "#F1FAF2",
+    borderWidth: 1,
+    borderColor: "#D7F2D9",
+  },
+  toolsTitle: {
+    color: "#008D25",
+    fontWeight: "800",
+    fontSize: 12,
+  },
+  toolsOption: {
+    color: "#222222",
+    marginTop: 8,
+    fontSize: 15,
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    justifyContent: "space-between",
+  },
+  intro: {
+    alignItems: "center",
+    paddingTop: 85,
+    paddingBottom: 65,
+    position: "relative",
+  },
+  closeButton: {
+    position: "absolute",
+    right: 5,
+    top: 48,
+    padding: 8,
+  },
+  closeText: {
+    color: "#777777",
+    fontSize: 25,
+  },
+  robotFrame: {
+    width: 126,
+    height: 126,
+    borderRadius: 63,
+    borderWidth: 2,
+    borderColor: "#B6EFC0",
+    backgroundColor: "#EAFBEA",
+    overflow: "hidden",
+    marginBottom: 30,
+  },
+  robotImage: {
+    width: "100%",
+    height: "100%",
+  },
+  introTitle: {
+    color: "#202020",
+    fontSize: 23,
+    fontWeight: "800",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  introDescription: {
+    color: "#777777",
+    fontSize: 18,
+    lineHeight: 29,
+    fontWeight: "600",
+    textAlign: "center",
+    paddingHorizontal: 8,
+  },
+  exploreButton: {
+    backgroundColor: "#171717",
+    paddingHorizontal: 30,
+    paddingVertical: 11,
+    borderRadius: 28,
+    marginTop: 24,
+  },
+  exploreText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 17,
+  },
+  recentSection: {
+    marginTop: 15,
+    marginBottom: 10,
+  },
+  recentHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  recentTitle: {
+    fontSize: 21,
+    fontWeight: "700",
+    color: "#777777",
+  },
+  seeAll: {
+    fontSize: 14,
+    color: "#078D2B",
+    fontWeight: "700",
+  },
+  recentItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
   },
   checkCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    backgroundColor: "#E8F5EA",
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#EDF8EF",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12
+    marginRight: 13,
   },
-  check: { color: "#218A42", fontSize: 23 },
-  historyTitle: { fontSize: 15, fontWeight: "800", color: "#242B25" },
-  historySub: { fontSize: 12, color: "#899089", marginTop: 5 },
-  more: { fontSize: 25, color: "#777F77" },
+  checkText: {
+    color: "#078D2B",
+    fontSize: 19,
+    fontWeight: "700",
+  },
+  recentDetails: {
+    flex: 1,
+  },
+  recentName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#242424",
+  },
+  recentDate: {
+    color: "#999999",
+    fontSize: 12,
+    marginTop: 4,
+  },
+  moreIcon: {
+    fontSize: 25,
+    color: "#777777",
+    paddingHorizontal: 8,
+  },
   composer: {
-    position: "absolute",
-    bottom: 12,
-    left: 12,
-    right: 12,
-    minHeight: 145,
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 8,
     backgroundColor: "#FFFFFF",
     borderRadius: 27,
-    padding: 19,
-    elevation: 9
+    paddingHorizontal: 18,
+    paddingTop: 17,
+    paddingBottom: 12,
+    minHeight: 132,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.09,
+    shadowRadius: 16,
+    elevation: 7,
+    borderWidth: 1,
+    borderColor: "#F3F3F3",
   },
-  input: {
-    minHeight: 65,
-    maxHeight: 100,
+  messageInput: {
     fontSize: 20,
-    color: "#202820",
-    textAlignVertical: "top"
+    fontWeight: "600",
+    color: "#222222",
+    minHeight: 48,
+    maxHeight: 85,
+    textAlignVertical: "top",
   },
-  controls: { flexDirection: "row", alignItems: "center", marginTop: 8 },
-  control: {
-    width: 37,
-    height: 40,
+  composerControls: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center"
+    marginTop: 8,
+    gap: 9,
   },
-  controlText: { fontSize: 25, color: "#283129" },
-  model: {
-    backgroundColor: "#F0F0ED",
-    borderRadius: 25,
-    paddingVertical: 9,
-    paddingHorizontal: 15,
-    marginLeft: 5
+  controlButton: {
+    width: 35,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  modelText: { fontSize: 16, fontWeight: "800", color: "#29312A" },
-  send: {
+  plusIcon: {
+    fontSize: 29,
+    color: "#222222",
+  },
+  modelButton: {
+    backgroundColor: "#F1EFED",
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  modelText: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#333333",
+  },
+  controlSpacer: {
+    flex: 1,
+  },
+  toolIcon: {
+    fontSize: 21,
+    color: "#333333",
+  },
+  micIcon: {
+    fontSize: 25,
+    color: "#333333",
+  },
+  voiceButton: {
     width: 43,
     height: 43,
-    borderRadius: 25,
-    backgroundColor: "#101A13",
+    borderRadius: 22,
+    backgroundColor: "#171717",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
-  sendText: { color: "#FFFFFF", fontSize: 26, fontWeight: "900" }
+  voiceIcon: {
+    fontSize: 21,
+    color: "#FFFFFF",
+  },
+  sendButton: {
+    width: 43,
+    height: 43,
+    borderRadius: 22,
+    backgroundColor: "#08B832",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sendIcon: {
+    fontSize: 27,
+    color: "#FFFFFF",
+    fontWeight: "800",
+  },
 });
+          
