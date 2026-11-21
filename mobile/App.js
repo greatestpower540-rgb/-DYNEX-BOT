@@ -6,7 +6,7 @@ import {
 } from "react-native";
 
 // Set EXPO_PUBLIC_DYNEX_API_URL in the build environment to your deployed Worker /chat URL.
-const API_URL = process.env.EXPO_PUBLIC_DYNEX_API_URL || "";
+const API_URL = "https://dynex-bot-ai5dcf.destinychukwudi209.workers.dev/chat";
 
 const starter = {
   id: "welcome",
