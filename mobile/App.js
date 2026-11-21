@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -13,6 +13,7 @@ import {
   Image,
   Alert,
   StyleSheet,
+  Animated,
 } from "react-native";
 
 export default function App() {
@@ -20,16 +21,44 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [showTools, setShowTools] = useState(false);
 
+  const robotFloat = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(robotFloat, {
+          toValue: -9,
+          duration: 1600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(robotFloat, {
+          toValue: 0,
+          duration: 1600,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    animation.start();
+    return () => animation.stop();
+  }, [robotFloat]);
+
   const comingSoon = (feature) => {
-    Alert.alert("DYNEX BOT", feature + " will be activated in a future update.");
+    Alert.alert(
+      "DYNEX BOT",
+      feature + " is being prepared for a future update."
+    );
   };
 
   const sendMessage = () => {
-    if (!message.trim()) return;
+    if (!message.trim()) {
+      Alert.alert("DYNEX BOT", "Enter a message first.");
+      return;
+    }
 
     Alert.alert(
       "DYNEX BOT",
-      "Your message is ready. The secure AI connection is the next development stage."
+      "Your message is ready. The real AI connection will be added next."
     );
     setMessage("");
   };
@@ -42,11 +71,11 @@ export default function App() {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* TOP HEADER */}
+        {/* HEADER */}
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.profileButton}
-            onPress={() => comingSoon("Your profile")}
+            onPress={() => comingSoon("Profile")}
           >
             <Image
               source={require("./assets/icon.png")}
@@ -61,7 +90,7 @@ export default function App() {
                 value={search}
                 onChangeText={setSearch}
                 placeholder="Search"
-                placeholderTextColor="#777777"
+                placeholderTextColor="#888888"
                 style={styles.searchInput}
               />
             </View>
@@ -82,23 +111,39 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
+        {/* TOOLS PANEL */}
         {showTools && (
           <View style={styles.toolsPanel}>
             <Text style={styles.toolsTitle}>DYNEX AI TOOLS</Text>
+
             <TouchableOpacity onPress={() => comingSoon("AI tools")}>
-              <Text style={styles.toolsOption}>Explore available tools →</Text>
+              <Text style={styles.toolsOption}>
+                Explore AI tools →
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => comingSoon("Image creation")}>
+              <Text style={styles.toolsOption}>
+                Image creation
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => comingSoon("Writing assistant")}>
+              <Text style={styles.toolsOption}>
+                Writing assistant
+              </Text>
             </TouchableOpacity>
           </View>
         )}
 
-        {/* MAIN CONTENT */}
+        {/* MAIN SCREEN */}
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* INTRODUCTION */}
+          {/* ROBOT INTRODUCTION */}
           <View style={styles.intro}>
             <TouchableOpacity
               style={styles.closeButton}
@@ -107,51 +152,74 @@ export default function App() {
               <Text style={styles.closeText}>×</Text>
             </TouchableOpacity>
 
-            <View style={styles.robotFrame}>
-              <Image
-                source={require("./assets/icon.png")}
-                style={styles.robotImage}
-                resizeMode="cover"
-              />
+            <Animated.View
+              style={[
+                styles.robotFrame,
+                {
+                  transform: [{ translateY: robotFloat }],
+                },
+              ]}
+            >
+              <View style={styles.robotGlow}>
+                <Image
+                  source={require("./assets/icon.png")}
+                  style={styles.robotImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </Animated.View>
+
+            <View style={styles.onlineRow}>
+              <View style={styles.onlineDot} />
+              <Text style={styles.onlineText}>DYNEX IS READY</Text>
             </View>
 
             <Text style={styles.introTitle}>
-              Introducing DYNEX Assistant
+              Meet DYNEX Assistant
             </Text>
 
             <Text style={styles.introDescription}>
-              Your intelligent companion for thinking, creating and getting
-              things done.
+              Your intelligent companion for thinking, creating,
+              learning and getting things done.
             </Text>
 
             <TouchableOpacity
               style={styles.exploreButton}
               onPress={() => comingSoon("DYNEX Explore")}
             >
-              <Text style={styles.exploreText}>Explore</Text>
+              <Text style={styles.exploreText}>Explore DYNEX →</Text>
             </TouchableOpacity>
           </View>
 
-          {/* RECENT CONVERSATIONS */}
+          {/* RECENT ACTIVITY */}
           <View style={styles.recentSection}>
             <View style={styles.recentHeader}>
-              <Text style={styles.recentTitle}>Recently updated</Text>
-              <TouchableOpacity onPress={() => comingSoon("All conversations")}>
+              <Text style={styles.recentTitle}>
+                Recently updated
+              </Text>
+
+              <TouchableOpacity
+                onPress={() => comingSoon("Conversation history")}
+              >
                 <Text style={styles.seeAll}>See all</Text>
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity
               style={styles.recentItem}
-              onPress={() => comingSoon("Recent conversation")}
+              onPress={() => comingSoon("Recent conversations")}
             >
               <View style={styles.checkCircle}>
-                <Text style={styles.checkText}>✓</Text>
+                <Text style={styles.checkText}>✦</Text>
               </View>
 
               <View style={styles.recentDetails}>
-                <Text style={styles.recentName}>Welcome to DYNEX</Text>
-                <Text style={styles.recentDate}>Start a new conversation</Text>
+                <Text style={styles.recentName}>
+                  Welcome to DYNEX
+                </Text>
+                <Text style={styles.recentDate}>
+                  Start your first conversation
+                </Text>
               </View>
 
               <TouchableOpacity
@@ -168,7 +236,7 @@ export default function App() {
           <TextInput
             style={styles.messageInput}
             placeholder="Ask anything..."
-            placeholderTextColor="#777777"
+            placeholderTextColor="#888888"
             value={message}
             onChangeText={setMessage}
             multiline
@@ -177,37 +245,38 @@ export default function App() {
           <View style={styles.composerControls}>
             <TouchableOpacity
               style={styles.controlButton}
-              onPress={() => comingSoon("Attachments")}
+              onPress={() => comingSoon("File attachments")}
             >
               <Text style={styles.plusIcon}>＋</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.modelButton}
-              onPress={() => comingSoon("AI model selection")}
+              onPress={() => comingSoon("Model selection")}
             >
               <Text style={styles.modelText}>Model</Text>
+              <Text style={styles.modelArrow}>⌄</Text>
             </TouchableOpacity>
 
             <View style={styles.controlSpacer} />
 
             <TouchableOpacity
               style={styles.controlButton}
-              onPress={() => comingSoon("AI tools")}
+              onPress={() => setShowTools(!showTools)}
             >
               <Text style={styles.toolIcon}>⚙</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.controlButton}
-              onPress={() => comingSoon("Voice input")}
+              onPress={() => comingSoon("Microphone")}
             >
               <Text style={styles.micIcon}>♩</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.voiceButton}
-              onPress={() => comingSoon("Voice assistant")}
+              onPress={() => comingSoon("DYNEX Voice")}
             >
               <Text style={styles.voiceIcon}>▥</Text>
             </TouchableOpacity>
@@ -235,48 +304,45 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   header: {
-    height: 82,
-    paddingHorizontal: 18,
+    height: 78,
+    paddingHorizontal: 15,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 10,
+    gap: 9,
   },
   profileButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "#F5F8F5",
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  profileImage: {
     width: 48,
     height: 48,
     borderRadius: 24,
+    backgroundColor: "#F1F9F2",
+    overflow: "hidden",
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
   },
   searchGroup: {
     flex: 1,
-    height: 56,
-    backgroundColor: "#F7F7F7",
-    borderRadius: 30,
+    height: 52,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 28,
     flexDirection: "row",
     alignItems: "center",
     padding: 4,
   },
   searchBox: {
     flex: 1,
-    height: 48,
+    height: 44,
     backgroundColor: "#FFFFFF",
-    borderRadius: 26,
+    borderRadius: 25,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
   },
   searchIcon: {
-    fontSize: 29,
-    color: "#222222",
+    fontSize: 27,
+    color: "#333333",
     marginRight: 5,
   },
   searchInput: {
@@ -285,43 +351,44 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   toolsSwitch: {
-    width: 54,
+    width: 42,
     alignItems: "center",
-    justifyContent: "center",
   },
   switchIcon: {
-    fontSize: 23,
+    fontSize: 22,
     color: "#333333",
   },
   libraryButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "#F7F7F7",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#F5F5F5",
     alignItems: "center",
     justifyContent: "center",
   },
   libraryIcon: {
-    fontSize: 27,
+    fontSize: 25,
     color: "#222222",
   },
   toolsPanel: {
-    marginHorizontal: 20,
+    marginHorizontal: 18,
+    marginBottom: 8,
     padding: 16,
-    borderRadius: 18,
-    backgroundColor: "#F1FAF2",
+    backgroundColor: "#F0FAF2",
+    borderRadius: 17,
     borderWidth: 1,
-    borderColor: "#D7F2D9",
+    borderColor: "#D5F0D9",
   },
   toolsTitle: {
-    color: "#008D25",
-    fontWeight: "800",
     fontSize: 12,
+    fontWeight: "800",
+    color: "#078D2B",
+    marginBottom: 8,
   },
   toolsOption: {
-    color: "#222222",
-    marginTop: 8,
+    color: "#252525",
     fontSize: 15,
+    paddingVertical: 7,
   },
   scroll: {
     flex: 1,
@@ -329,65 +396,94 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 18,
     justifyContent: "space-between",
   },
   intro: {
     alignItems: "center",
-    paddingTop: 85,
-    paddingBottom: 65,
+    paddingTop: 65,
+    paddingBottom: 48,
     position: "relative",
   },
   closeButton: {
     position: "absolute",
-    right: 5,
-    top: 48,
+    right: 4,
+    top: 35,
     padding: 8,
   },
   closeText: {
-    color: "#777777",
     fontSize: 25,
+    color: "#777777",
   },
   robotFrame: {
-    width: 126,
-    height: 126,
-    borderRadius: 63,
+    width: 132,
+    height: 132,
+    borderRadius: 66,
+    padding: 5,
+    backgroundColor: "#E7F9E9",
     borderWidth: 2,
-    borderColor: "#B6EFC0",
-    backgroundColor: "#EAFBEA",
+    borderColor: "#A9EAB5",
+    marginBottom: 22,
+    shadowColor: "#0DBA42",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.23,
+    shadowRadius: 15,
+    elevation: 6,
+  },
+  robotGlow: {
+    flex: 1,
+    borderRadius: 60,
     overflow: "hidden",
-    marginBottom: 30,
+    backgroundColor: "#E4F9E8",
   },
   robotImage: {
     width: "100%",
     height: "100%",
   },
-  introTitle: {
-    color: "#202020",
-    fontSize: 23,
+  onlineRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 7,
+  },
+  onlineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#08B83D",
+  },
+  onlineText: {
+    color: "#08A535",
+    fontSize: 11,
     fontWeight: "800",
+    letterSpacing: 1.5,
+  },
+  introTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#202020",
     textAlign: "center",
     marginBottom: 12,
   },
   introDescription: {
+    fontSize: 16,
+    lineHeight: 26,
+    fontWeight: "500",
     color: "#777777",
-    fontSize: 18,
-    lineHeight: 29,
-    fontWeight: "600",
     textAlign: "center",
     paddingHorizontal: 8,
   },
   exploreButton: {
-    backgroundColor: "#171717",
-    paddingHorizontal: 30,
-    paddingVertical: 11,
+    backgroundColor: "#111111",
+    paddingHorizontal: 26,
+    paddingVertical: 13,
     borderRadius: 28,
-    marginTop: 24,
+    marginTop: 23,
   },
   exploreText: {
-    color: "#FFFFFF",
+    fontSize: 15,
     fontWeight: "700",
-    fontSize: 17,
+    color: "#FFFFFF",
   },
   recentSection: {
     marginTop: 15,
@@ -397,17 +493,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 17,
   },
   recentTitle: {
-    fontSize: 21,
+    fontSize: 20,
     fontWeight: "700",
     color: "#777777",
   },
   seeAll: {
     fontSize: 14,
-    color: "#078D2B",
     fontWeight: "700",
+    color: "#07942E",
   },
   recentItem: {
     flexDirection: "row",
@@ -415,26 +511,26 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   checkCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#EDF8EF",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#ECF8EF",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 13,
+    marginRight: 12,
   },
   checkText: {
-    color: "#078D2B",
-    fontSize: 19,
-    fontWeight: "700",
+    color: "#07942E",
+    fontSize: 20,
+    fontWeight: "800",
   },
   recentDetails: {
     flex: 1,
   },
   recentName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
-    color: "#242424",
+    color: "#222222",
   },
   recentDate: {
     color: "#999999",
@@ -447,57 +543,64 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   composer: {
-    marginHorizontal: 16,
+    marginHorizontal: 14,
     marginTop: 8,
-    marginBottom: 8,
+    marginBottom: 9,
     backgroundColor: "#FFFFFF",
-    borderRadius: 27,
-    paddingHorizontal: 18,
-    paddingTop: 17,
+    borderRadius: 26,
+    paddingHorizontal: 16,
+    paddingTop: 15,
     paddingBottom: 12,
-    minHeight: 132,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.09,
-    shadowRadius: 16,
-    elevation: 7,
+    minHeight: 125,
     borderWidth: 1,
-    borderColor: "#F3F3F3",
+    borderColor: "#EEEEEE",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 13,
+    elevation: 6,
   },
   messageInput: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: "600",
     color: "#222222",
-    minHeight: 48,
-    maxHeight: 85,
+    minHeight: 45,
+    maxHeight: 80,
     textAlignVertical: "top",
   },
   composerControls: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 8,
-    gap: 9,
+    gap: 7,
   },
   controlButton: {
-    width: 35,
+    width: 33,
     height: 38,
     alignItems: "center",
     justifyContent: "center",
   },
   plusIcon: {
-    fontSize: 29,
+    fontSize: 28,
     color: "#222222",
   },
   modelButton: {
-    backgroundColor: "#F1EFED",
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    backgroundColor: "#F1F0EE",
+    borderRadius: 23,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
   },
   modelText: {
-    fontSize: 17,
+    fontSize: 14,
     fontWeight: "700",
     color: "#333333",
+  },
+  modelArrow: {
+    color: "#555555",
+    fontSize: 15,
   },
   controlSpacer: {
     flex: 1,
@@ -507,33 +610,33 @@ const styles = StyleSheet.create({
     color: "#333333",
   },
   micIcon: {
-    fontSize: 25,
+    fontSize: 24,
     color: "#333333",
   },
   voiceButton: {
-    width: 43,
-    height: 43,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 21,
     backgroundColor: "#171717",
     alignItems: "center",
     justifyContent: "center",
   },
   voiceIcon: {
-    fontSize: 21,
+    fontSize: 20,
     color: "#FFFFFF",
   },
   sendButton: {
-    width: 43,
-    height: 43,
-    borderRadius: 22,
-    backgroundColor: "#08B832",
+    width: 40,
+    height: 40,
+    borderRadius: 21,
+    backgroundColor: "#08B83D",
     alignItems: "center",
     justifyContent: "center",
   },
   sendIcon: {
-    fontSize: 27,
+    fontSize: 26,
     color: "#FFFFFF",
     fontWeight: "800",
   },
 });
-          
+                
