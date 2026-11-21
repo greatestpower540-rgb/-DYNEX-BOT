@@ -36,13 +36,13 @@ button {
 }
 
 .round-icon {
-  width: 72px;
-  height: 72px;
+  width: 62px;
+  height: 62px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-  font-size: 34px;
+  background: #242321;
+  color: white;
+  font-size: 30px;
 }
 
 .navigation-pill {
@@ -76,35 +76,100 @@ button {
 }
 
 .announcement {
-  min-height: 800px;
-  padding: 250px 15px 80px;
+  min-height: 790px;
+  padding: 260px 15px 65px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
   text-align: center;
 }
 
 .close-announcement {
   position: absolute;
-  top: 245px;
-  left: calc(50% + 140px);
-  font-size: 29px;
+  top: 250px;
+  left: calc(50% + 120px);
+  font-size: 28px;
   color: #777;
 }
 
 .announcement-orb {
-  width: 135px;
-  height: 135px;
-  margin-bottom: 30px;
+  width: 160px;
+  height: 160px;
+  margin-bottom: 35px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: white;
-  font-size: 65px;
-  background: radial-gradient(circle, #252525 35%, #526b68 55%, #e9eeee 72%, #faf9f7 75%);
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.10);
+  background:
+    radial-gradient(circle,
+      #080a0b 0%,
+      #10191b 39%,
+      #314d52 52%,
+      #9ebbc2 63%,
+      #e3e9e8 72%,
+      transparent 76%);
+  box-shadow:
+    0 0 16px rgba(65, 111, 124, 0.35),
+    0 0 35px rgba(105, 142, 150, 0.16);
+}
+
+.robot {
+  width: 105px;
+  height: 105px;
+  border-radius: 27px;
+  background: linear-gradient(145deg, #202020, #050505);
+  border: 3px solid #414141;
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.55),
+    inset 0 2px 8px rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  position: relative;
+}
+
+.robot-face {
+  width: 65px;
+  height: 48px;
+  border: 3px solid #b9c0c0;
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 0 8px rgba(220, 240, 240, 0.25);
+}
+
+.robot-eyes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.robot-eyes span {
+  width: 6px;
+  height: 17px;
+  border-radius: 5px;
+  background: #f2f5f4;
+  box-shadow: 0 0 7px #fff;
+}
+
+.robot-mouth {
+  width: 29px;
+  height: 3px;
+  border-radius: 5px;
+  background: #c8d0d0;
+}
+
+.robot-base {
+  width: 75px;
+  height: 4px;
+  border-radius: 5px;
+  background: #d2d8d8;
+  box-shadow: 0 0 7px rgba(255, 255, 255, 0.35);
 }
 
 .announcement h1 {
@@ -123,20 +188,14 @@ button {
   color: #777;
 }
 
-.announcement .announcement-subtitle {
-  max-width: 550px;
-  margin-top: 4px;
-}
-
 .recent-section {
-  margin-top: 0;
-  padding-bottom: 230px;
+  padding-bottom: 240px;
 }
 
 .recent-section h2 {
   margin-bottom: 28px;
   color: #777;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 700;
 }
 
@@ -144,7 +203,7 @@ button {
   min-height: 70px;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 15px;
 }
 
 .status-icon {
@@ -160,15 +219,14 @@ button {
 }
 
 .recent-item strong {
-  font-size: 25px;
+  font-size: 21px;
   font-weight: 700;
 }
 
 .recent-time {
   margin-left: auto;
   color: #888;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 16px;
   white-space: nowrap;
 }
 
@@ -181,14 +239,14 @@ button {
 .composer {
   position: fixed;
   z-index: 5;
-  left: 3%;
-  right: 3%;
-  bottom: 22px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   min-height: 205px;
   padding: 30px 32px 20px;
-  border-radius: 38px;
+  border-radius: 38px 38px 0 0;
   background: #fff;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 -8px 35px rgba(0, 0, 0, 0.07);
 }
 
 .composer textarea {
@@ -201,7 +259,7 @@ button {
   background: transparent;
   color: #252525;
   font: inherit;
-  font-size: 31px;
+  font-size: 30px;
   font-weight: 600;
 }
 
@@ -213,7 +271,7 @@ button {
 .composer-controls {
   display: flex;
   align-items: center;
-  gap: 17px;
+  gap: 15px;
   margin-top: 15px;
 }
 
@@ -228,7 +286,7 @@ button {
   padding: 8px 18px;
   border-radius: 30px;
   background: #f1eeeb;
-  font-size: 25px;
+  font-size: 23px;
   font-weight: 600;
 }
 
@@ -265,6 +323,8 @@ button {
     right: auto;
     width: min(850px, 90%);
     transform: translateX(-50%);
+    border-radius: 38px;
+    bottom: 20px;
   }
 }
 
@@ -278,7 +338,6 @@ button {
   .round-icon {
     width: 58px;
     height: 58px;
-    font-size: 28px;
   }
 
   .navigation-pill {
@@ -296,58 +355,37 @@ button {
 
   .close-announcement {
     top: 260px;
-    left: calc(50% + 120px);
+    left: calc(50% + 115px);
   }
 
   .announcement-orb {
-    width: 130px;
-    height: 130px;
+    width: 155px;
+    height: 155px;
   }
 
   .announcement h1 {
-    font-size: 30px;
-  }
-
-  .announcement p {
-    font-size: 27px;
-  }
-
-  .recent-section {
-    padding-bottom: 230px;
-  }
-
-  .recent-section h2 {
     font-size: 29px;
   }
 
-  .recent-item {
-    gap: 13px;
+  .announcement p {
+    font-size: 26px;
+  }
+
+  .recent-section h2 {
+    font-size: 27px;
   }
 
   .recent-item strong {
-    font-size: 21px;
-  }
-
-  .recent-time {
-    font-size: 16px;
+    font-size: 19px;
   }
 
   .composer {
-    bottom: 18px;
-    min-height: 195px;
+    min-height: 190px;
     padding: 27px 25px 18px;
-    border-radius: 35px;
   }
 
   .composer textarea {
     font-size: 27px;
   }
-
-  .composer-controls {
-    gap: 12px;
   }
-
-  .model-button {
-    font-size: 22px;
-  }
-    }
+    
