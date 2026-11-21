@@ -5,7 +5,8 @@ import {
   Alert, Keyboard
 } from "react-native";
 
-const API_URL = "https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/chat";
+// Set EXPO_PUBLIC_DYNEX_API_URL in the build environment to your deployed Worker /chat URL.
+const API_URL = process.env.EXPO_PUBLIC_DYNEX_API_URL || "";
 
 const starter = {
   id: "welcome",
@@ -27,7 +28,7 @@ export default function App() {
   const sendMessage = async () => {
     const text = draft.trim();
     if (!text || busy) return;
-    if (API_URL.includes("YOUR-WORKER-NAME")) {
+    if (!API_URL) {
       Alert.alert("Connect DYNEX AI", "The app interface is ready. Deploy the DYNEX AI Worker and replace API_URL in mobile/App.js with your Worker /chat address to enable live replies.");
       return;
     }
