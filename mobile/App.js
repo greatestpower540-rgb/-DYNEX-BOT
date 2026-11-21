@@ -1,190 +1,134 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  ScrollView,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  Alert
+  View, Text, Image, TextInput, ScrollView, Pressable, StatusBar,
+  StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator,
+  Alert, Keyboard
 } from "react-native";
 
-export default function App() {
-  const [message, setMessage] = useState("");
+const API_URL = "https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/chat";
 
-  const notice = (name) => {
-    Alert.alert(name, "This feature will be connected in a future update.");
+const starter = {
+  id: "welcome",
+  role: "assistant",
+  content: "Hi! I'm DYNEX, your AI assistant. Ask me anything — I can explain ideas, help you write, learn, plan, and solve problems."
+};
+
+export default function App() {
+  const [messages, setMessages] = useState([starter]);
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
+    return () => clearTimeout(timer);
+  }, [messages, busy]);
+
+  const sendMessage = async () => {
+    const text = draft.trim();
+    if (!text || busy) return;
+    if (API_URL.includes("YOUR-WORKER-NAME")) {
+      Alert.alert("Connect DYNEX AI", "The app interface is ready. Deploy the DYNEX AI Worker and replace API_URL in mobile/App.js with your Worker /chat address to enable live replies.");
+      return;
+    }
+
+    Keyboard.dismiss();
+    setDraft("");
+    const next = [...messages, { id: String(Date.now()), role: "user", content: text }];
+    setMessages(next);
+    setBusy(true);
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: next.filter(item => item.id !== "welcome").slice(-20).map(({ role, content }) => ({ role, content }))
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "DYNEX could not reply. Please try again.");
+      const answer = String(data.reply || "").trim();
+      if (!answer) throw new Error("DYNEX returned an empty reply. Please try again.");
+      setMessages(current => [...current, { id: String(Date.now() + 1), role: "assistant", content: answer }]);
+    } catch (error) {
+      setMessages(current => [...current, {
+        id: String(Date.now() + 2),
+        role: "assistant",
+        content: "I couldn't reach the AI service just now. Please check your internet connection and try again."
+      }]);
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const sendMessage = () => {
-    if (!message.trim()) return;
-    Alert.alert(
-      "DYNEX Assistant",
-      "Your message is ready. The real AI connection is our next development step."
-    );
-    setMessage("");
+  const clearChat = () => {
+    Alert.alert("New chat", "Start a fresh conversation?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "New chat", onPress: () => setMessages([starter]) }
+    ]);
   };
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        {/* APP HEADER */}
+      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 8 : 0}>
         <View style={styles.header}>
-          <Pressable
-            style={styles.profileButton}
-            onPress={() => notice("Profile")}
-          >
-            <Image
-              source={require("./assets/icon.png")}
-              style={styles.profileImage}
-            />
-          </Pressable>
-
-          <View style={styles.headerCenter}>
-            <Pressable
-              style={styles.headerButton}
-              onPress={() => notice("Search")}
-            >
-              <Text style={styles.headerIcon}>⌕</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.headerButton}
-              onPress={() => notice("DYNEX Tools")}
-            >
-              <Text style={styles.headerIcon}>▣</Text>
-            </Pressable>
+          <View style={styles.brand}>
+            <Image source={require("./assets/icon.png")} style={styles.avatar} />
+            <View>
+              <Text style={styles.brandName}>DYNEX</Text>
+              <View style={styles.onlineRow}><View style={styles.onlineDot} /><Text style={styles.onlineText}>AI ASSISTANT</Text></View>
+            </View>
           </View>
-
-          <Pressable
-            style={styles.libraryButton}
-            onPress={() => notice("Chat Library")}
-          >
-            <Text style={styles.headerIcon}>▤</Text>
-          </Pressable>
+          <Pressable style={styles.newChat} onPress={clearChat}><Text style={styles.newChatText}>＋</Text></Pressable>
         </View>
 
-        {/* MAIN APP CONTENT */}
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.hero}>
-            <View style={styles.robotWrap}>
-              <Image
-                source={require("./assets/icon.png")}
-                style={styles.robot}
-                resizeMode="contain"
-              />
-              <View style={styles.onlineDot} />
-            </View>
-
-            <Text style={styles.heading}>
-              Meet DYNEX Assistant
-            </Text>
-
-            <Text style={styles.description}>
-              Your intelligent companion for thinking, creating,
-              learning and getting things done.
-            </Text>
-
-            <Pressable
-              style={styles.exploreButton}
-              onPress={() => notice("Explore DYNEX")}
-            >
-              <Text style={styles.exploreText}>Explore DYNEX</Text>
-            </Pressable>
-          </View>
-
-          {/* RECENT CONVERSATIONS */}
-          <View style={styles.recentSection}>
-            <View style={styles.recentHeading}>
-              <Text style={styles.recentTitle}>Recently updated</Text>
-              <Pressable onPress={() => notice("See all chats")}>
-                <Text style={styles.seeAll}>See all</Text>
-              </Pressable>
-            </View>
-
-            <Pressable
-              style={styles.chatRow}
-              onPress={() => notice("Welcome to DYNEX")}
-            >
-              <View style={styles.chatStatus}>
-                <Text style={styles.check}>✓</Text>
+        <ScrollView ref={scrollRef} style={styles.chat} contentContainerStyle={styles.chatContent} keyboardShouldPersistTaps="handled">
+          {messages.length === 1 && (
+            <View style={styles.welcome}>
+              <Image source={require("./assets/icon.png")} style={styles.heroRobot} resizeMode="contain" />
+              <Text style={styles.welcomeTitle}>What can I help with?</Text>
+              <Text style={styles.welcomeSub}>Think clearly. Create freely. Get things done.</Text>
+              <View style={styles.suggestions}>
+                {["Explain something to me", "Help me write", "Plan my day"].map((item) => (
+                  <Pressable key={item} style={styles.suggestion} onPress={() => setDraft(item)}>
+                    <Text style={styles.suggestionText}>{item}</Text><Text style={styles.suggestionArrow}>↗</Text>
+                  </Pressable>
+                ))}
               </View>
+            </View>
+          )}
 
-              <View style={styles.chatInfo}>
-                <Text style={styles.chatName}>Welcome to DYNEX</Text>
-                <Text style={styles.chatSubtitle}>
-                  Start a new conversation
-                </Text>
+          {messages.map((item) => (
+            item.id === "welcome" ? null : (
+              <View key={item.id} style={[styles.messageRow, item.role === "user" ? styles.userRow : styles.assistantRow]}>
+                {item.role === "assistant" && <Image source={require("./assets/icon.png")} style={styles.messageAvatar} />}
+                <View style={[styles.bubble, item.role === "user" ? styles.userBubble : styles.assistantBubble]}>
+                  <Text style={[styles.messageText, item.role === "user" ? styles.userText : styles.assistantText]}>{item.content}</Text>
+                </View>
               </View>
-
-              <Text style={styles.chatMore}>⋮</Text>
-            </Pressable>
-          </View>
+            )
+          ))}
+          {busy && <View style={styles.typing}><Image source={require("./assets/icon.png")} style={styles.messageAvatar} /><View style={styles.typingBubble}><ActivityIndicator size="small" color="#218B55" /><Text style={styles.typingText}>DYNEX is thinking…</Text></View></View>}
         </ScrollView>
 
-        {/* BOTTOM MESSAGE COMPOSER */}
         <View style={styles.composer}>
           <TextInput
-            style={styles.messageInput}
-            placeholder="Ask anything..."
-            placeholderTextColor="#858585"
-            value={message}
-            onChangeText={setMessage}
+            style={styles.input}
+            placeholder="Message DYNEX..."
+            placeholderTextColor="#929A94"
+            value={draft}
+            onChangeText={setDraft}
             multiline
+            maxLength={6000}
+            editable={!busy}
+            returnKeyType="default"
           />
-
-          <View style={styles.composerActions}>
-            <Pressable
-              style={styles.actionButton}
-              onPress={() => notice("Attachments")}
-            >
-              <Text style={styles.actionIcon}>＋</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.modelButton}
-              onPress={() => notice("Choose model")}
-            >
-              <Text style={styles.modelText}>Model</Text>
-            </Pressable>
-
-            <View style={styles.actionSpacer} />
-
-            <Pressable
-              style={styles.actionButton}
-              onPress={() => notice("AI Tools")}
-            >
-              <Text style={styles.actionIcon}>⚒</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.actionButton}
-              onPress={() => notice("Voice input")}
-            >
-              <Text style={styles.actionIcon}>♩</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.sendButton}
-              onPress={sendMessage}
-            >
-              <Text style={styles.sendIcon}>↑</Text>
+          <View style={styles.composerBottom}>
+            <Text style={styles.hint}>DYNEX can make mistakes. Check important information.</Text>
+            <Pressable style={[styles.sendButton, (!draft.trim() || busy) && styles.sendDisabled]} onPress={sendMessage} disabled={!draft.trim() || busy}>
+              {busy ? <ActivityIndicator color="#FFFFFF" size="small" /> : <Text style={styles.sendIcon}>↑</Text>}
             </Pressable>
           </View>
         </View>
@@ -194,248 +138,45 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#FFFFFF"
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF"
-  },
-  header: {
-    height: 72,
-    paddingHorizontal: 17,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between"
-  },
-  profileButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 25,
-    backgroundColor: "#F6F7F5",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  profileImage: {
-    width: 31,
-    height: 31,
-    borderRadius: 16
-  },
-  headerCenter: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F7F7F7",
-    borderRadius: 30,
-    padding: 5,
-    gap: 8
-  },
-  headerButton: {
-    width: 62,
-    height: 43,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  headerIcon: {
-    color: "#202020",
-    fontSize: 25,
-    fontWeight: "500"
-  },
-  libraryButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 25,
-    backgroundColor: "#F6F7F5",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  scroll: {
-    flex: 1
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 25
-  },
-  hero: {
-    minHeight: 540,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 25,
-    paddingTop: 30
-  },
-  robotWrap: {
-    width: 126,
-    height: 126,
-    marginBottom: 32,
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  robot: {
-    width: 116,
-    height: 116
-  },
-  onlineDot: {
-    position: "absolute",
-    right: 9,
-    bottom: 12,
-    width: 15,
-    height: 15,
-    borderRadius: 10,
-    backgroundColor: "#28B66A",
-    borderWidth: 3,
-    borderColor: "#FFFFFF"
-  },
-  heading: {
-    fontSize: 27,
-    fontWeight: "800",
-    color: "#171717",
-    textAlign: "center",
-    marginBottom: 12
-  },
-  description: {
-    fontSize: 17,
-    lineHeight: 27,
-    color: "#777777",
-    textAlign: "center",
-    maxWidth: 330
-  },
-  exploreButton: {
-    backgroundColor: "#171717",
-    paddingHorizontal: 30,
-    paddingVertical: 13,
-    borderRadius: 30,
-    marginTop: 25
-  },
-  exploreText: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "700"
-  },
-  recentSection: {
-    paddingHorizontal: 22,
-    paddingTop: 18,
-    paddingBottom: 15
-  },
-  recentHeading: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 17
-  },
-  recentTitle: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#777777"
-  },
-  seeAll: {
-    color: "#29965D",
-    fontWeight: "600",
-    fontSize: 14
-  },
-  chatRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 14
-  },
-  chatStatus: {
-    width: 35,
-    height: 35,
-    borderRadius: 18,
-    backgroundColor: "#EFF8F1",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  check: {
-    color: "#26965A",
-    fontSize: 18,
-    fontWeight: "800"
-  },
-  chatInfo: {
-    flex: 1,
-    marginLeft: 13
-  },
-  chatName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#202020"
-  },
-  chatSubtitle: {
-    fontSize: 12,
-    color: "#999999",
-    marginTop: 4
-  },
-  chatMore: {
-    fontSize: 24,
-    color: "#777777",
-    paddingHorizontal: 8
-  },
-  composer: {
-    marginHorizontal: 13,
-    marginBottom: 9,
-    paddingHorizontal: 17,
-    paddingTop: 17,
-    paddingBottom: 12,
-    borderRadius: 27,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#EEEEEE",
-    elevation: 5,
-    shadowColor: "#000000",
-    shadowOpacity: 0.07,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 3 }
-  },
-  messageInput: {
-    minHeight: 52,
-    maxHeight: 105,
-    fontSize: 19,
-    fontWeight: "600",
-    color: "#222222",
-    textAlignVertical: "top"
-  },
-  composerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10
-  },
-  actionButton: {
-    width: 39,
-    height: 39,
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  actionIcon: {
-    fontSize: 25,
-    color: "#252525"
-  },
-  modelButton: {
-    backgroundColor: "#F1F1F1",
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20
-  },
-  modelText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#333333"
-  },
-  actionSpacer: {
-    flex: 1
-  },
-  sendButton: {
-    width: 41,
-    height: 41,
-    borderRadius: 22,
-    backgroundColor: "#202020",
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 5
-  },
-  sendIcon: {
-    color: "#FFFFFF",
-    fontSize: 25,
-    fontWeight: "700"
-  }
+  safe: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  header: { height: 68, paddingHorizontal: 19, borderBottomWidth: 1, borderBottomColor: "#F0F2F0", flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  brand: { flexDirection: "row", alignItems: "center", gap: 11 },
+  avatar: { width: 43, height: 43, borderRadius: 22, backgroundColor: "#F1F7F2" },
+  brandName: { color: "#17231B", fontSize: 18, fontWeight: "900", letterSpacing: 1.1 },
+  onlineRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 3 },
+  onlineDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#2BB66A" },
+  onlineText: { color: "#7A897E", fontSize: 9, fontWeight: "800", letterSpacing: 1.2 },
+  newChat: { width: 42, height: 42, borderRadius: 22, backgroundColor: "#F3F6F3", alignItems: "center", justifyContent: "center" },
+  newChatText: { color: "#1E3827", fontSize: 27, lineHeight: 30 },
+  chat: { flex: 1 },
+  chatContent: { flexGrow: 1, paddingHorizontal: 17, paddingTop: 20, paddingBottom: 24 },
+  welcome: { flex: 1, minHeight: 440, alignItems: "center", justifyContent: "center", paddingHorizontal: 10 },
+  heroRobot: { width: 132, height: 132, marginBottom: 20 },
+  welcomeTitle: { fontSize: 26, lineHeight: 33, fontWeight: "800", color: "#17231B", textAlign: "center" },
+  welcomeSub: { fontSize: 14, color: "#7B877F", marginTop: 8, textAlign: "center" },
+  suggestions: { width: "100%", gap: 9, marginTop: 30 },
+  suggestion: { minHeight: 49, borderWidth: 1, borderColor: "#E8EEE9", borderRadius: 15, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#FFFFFF" },
+  suggestionText: { color: "#3A4B3F", fontSize: 14, fontWeight: "600" },
+  suggestionArrow: { color: "#24935A", fontSize: 18 },
+  messageRow: { flexDirection: "row", alignItems: "flex-end", marginBottom: 17, gap: 8 },
+  userRow: { justifyContent: "flex-end" },
+  assistantRow: { justifyContent: "flex-start" },
+  messageAvatar: { width: 27, height: 27, borderRadius: 14, marginBottom: 3 },
+  bubble: { maxWidth: "84%", borderRadius: 19, paddingHorizontal: 15, paddingVertical: 12 },
+  userBubble: { backgroundColor: "#EAF5ED", borderBottomRightRadius: 5 },
+  assistantBubble: { backgroundColor: "#F5F6F5", borderBottomLeftRadius: 5 },
+  messageText: { fontSize: 15, lineHeight: 23 },
+  userText: { color: "#20392A" },
+  assistantText: { color: "#202923" },
+  typing: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 },
+  typingBubble: { flexDirection: "row", alignItems: "center", gap: 9, backgroundColor: "#F5F6F5", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 18 },
+  typingText: { color: "#728078", fontSize: 13 },
+  composer: { marginHorizontal: 12, marginBottom: 10, paddingHorizontal: 15, paddingTop: 13, paddingBottom: 10, borderWidth: 1, borderColor: "#E5EBE6", borderRadius: 23, backgroundColor: "#FFFFFF", elevation: 3, shadowColor: "#17231B", shadowOpacity: 0.06, shadowRadius: 9, shadowOffset: { width: 0, height: 3 } },
+  input: { minHeight: 43, maxHeight: 125, color: "#17231B", fontSize: 16, lineHeight: 22, textAlignVertical: "top", paddingTop: 4 },
+  composerBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 7 },
+  hint: { color: "#9AA39D", fontSize: 9, flex: 1, paddingRight: 8 },
+  sendButton: { width: 39, height: 39, borderRadius: 20, backgroundColor: "#1F8C53", alignItems: "center", justifyContent: "center" },
+  sendDisabled: { backgroundColor: "#AAB8AE" },
+  sendIcon: { color: "#FFFFFF", fontSize: 25, fontWeight: "800", marginTop: -2 }
 });
-          
