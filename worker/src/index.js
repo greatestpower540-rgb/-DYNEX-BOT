@@ -78,7 +78,7 @@ export default {
 
       for (const attachment of attachments) {
         const name = String(attachment?.name || "attachment").slice(0, 180);
-        const mimeType = String(attachment?.mimeType || "").toLowerCase();
+        const mimeType = String(attachment?.mimeType || "").toLowerCase().split(";")[0].trim();
         if (textTypes.has(mimeType) && typeof attachment?.text === "string") {
           parts.push({ text: `Attached text file: ${name}\n\n${attachment.text.slice(0, 150000)}` });
           continue;
