@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   View, Text, Image, TextInput, ScrollView, Pressable, StatusBar,
   StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator,
@@ -25,9 +26,40 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [screen, setScreen] = useState("chat");
   const [search, setSearch] = useState("");
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const scrollRef = useRef(null);
   const activeChat = chats.find(c => c.id === activeId) || chats[0];
   const messages = activeChat?.messages || [starter];
+
+  useEffect(() => {
+    let mounted = true;
+    const restoreHistory = async () => {
+      try {
+        const saved = await AsyncStorage.getItem("dynex_chat_history_v1");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed.chats) && parsed.chats.length > 0 && mounted) {
+            setChats(parsed.chats);
+            const savedActive = parsed.chats.some(chat => chat.id === parsed.activeId)
+              ? parsed.activeId : parsed.chats[0].id;
+            setActiveId(savedActive);
+          }
+        }
+      } catch (error) {
+        console.warn("DYNEX chat history could not be restored.", error);
+      } finally {
+        if (mounted) setHistoryLoaded(true);
+      }
+    };
+    restoreHistory();
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!historyLoaded) return;
+    AsyncStorage.setItem("dynex_chat_history_v1", JSON.stringify({ chats, activeId }))
+      .catch(error => console.warn("DYNEX chat history could not be saved.", error));
+  }, [chats, activeId, historyLoaded]);
 
   useEffect(() => {
     const timer = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
