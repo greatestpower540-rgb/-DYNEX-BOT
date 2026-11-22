@@ -47,16 +47,21 @@ export default function App() {
           messages: next.filter(item => item.id !== "welcome").slice(-20).map(({ role, content }) => ({ role, content }))
         })
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "DYNEX could not reply. Please try again.");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = data.error || "The AI service returned an error.";
+        const status = data.provider_status ? ` (provider status: ${data.provider_status})` : ` (HTTP ${response.status})`;
+        throw new Error(detail + status);
+      }
       const answer = String(data.reply || "").trim();
       if (!answer) throw new Error("DYNEX returned an empty reply. Please try again.");
       setMessages(current => [...current, { id: String(Date.now() + 1), role: "assistant", content: answer }]);
     } catch (error) {
+      const detail = error?.message || "Unknown connection error.";
       setMessages(current => [...current, {
         id: String(Date.now() + 2),
         role: "assistant",
-        content: "I couldn't reach the AI service just now. Please check your internet connection and try again."
+        content: `DYNEX couldn't complete that request: ${detail}`
       }]);
     } finally {
       setBusy(false);
