@@ -25,7 +25,8 @@ export default {
       return json({
         ok: true,
         service: "DYNEX BOT AI",
-        configured: Boolean(env.OPENAI_API_KEY)
+        configured: Boolean(env.GEMINI_API_KEY),
+        provider: "Gemini"
       });
     }
 
@@ -37,8 +38,8 @@ export default {
       return json({ error: "POST method required." }, 405);
     }
 
-    if (!env.OPENAI_API_KEY) {
-      return json({ error: "AI service is not configured." }, 503);
+    if (!env.GEMINI_API_KEY) {
+      return json({ error: "Gemini AI service is not configured." }, 503);
     }
 
     let body;
@@ -55,7 +56,7 @@ export default {
     }
 
     const messages = body.messages.slice(-20).map((item) => ({
-      role: item?.role === "assistant" ? "assistant" : "user",
+      role: item?.role === "assistant" ? "model" : "user",
       content: String(item?.content || "").trim().slice(0, 6000)
     })).filter((item) => item.content);
 
@@ -63,49 +64,61 @@ export default {
       return json({ error: "Your latest message is missing." }, 400);
     }
 
+    // Gemini expects conversation roles to alternate. Merge consecutive turns safely.
+    const contents = [];
+    for (const message of messages) {
+      const last = contents[contents.length - 1];
+      if (last && last.role === message.role) {
+        last.parts[0].text += "\n\n" + message.content;
+      } else {
+        contents.push({ role: message.role, parts: [{ text: message.content }] });
+      }
+    }
+
     try {
-      const upstream = await fetch("https://api.openai.com/v1/responses", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: env.OPENAI_MODEL || "gpt-4o-mini",
-          instructions: "You are DYNEX, a friendly, capable general-purpose AI assistant inside the DYNEX BOT mobile app. Be clear, useful, respectful, and honest. Help users learn, write, plan, reason, and solve everyday problems. Match the user's language when possible. Never claim to have performed actions outside this chat. If unsure, say so.",
-          input: messages,
-          max_output_tokens: 1200,
-          store: false
-        })
-      });
+      const upstream = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        {
+          method: "POST",
+          headers: {
+            "x-goog-api-key": env.GEMINI_API_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{
+                text: "You are DYNEX, a friendly, capable general-purpose AI assistant inside the DYNEX BOT mobile app. Be clear, useful, respectful, and honest. Help users learn, write, plan, reason, and solve everyday problems. Match the user's language when possible. Never claim to have performed actions outside this chat. If unsure, say so."
+              }]
+            },
+            contents,
+            generationConfig: { maxOutputTokens: 1200 }
+          })
+        }
+      );
 
       const result = await upstream.json();
 
       if (!upstream.ok) {
         return json({
-          error: "The AI provider could not complete this request. Check the API key, model access, and billing.",
+          error: result?.error?.message || "Gemini could not complete this request. Check API key access and free-tier limits.",
           provider_status: upstream.status
         }, 502);
       }
 
-      let reply = result.output_text || "";
+      const reply = (result.candidates || [])
+        .flatMap((candidate) => candidate.content?.parts || [])
+        .filter((part) => typeof part.text === "string")
+        .map((part) => part.text)
+        .join("\n")
+        .trim();
 
-      if (!reply && Array.isArray(result.output)) {
-        reply = result.output
-          .filter((item) => item.type === "message")
-          .flatMap((item) => item.content || [])
-          .filter((part) => part.type === "output_text")
-          .map((part) => part.text || "")
-          .join("\n");
+      if (!reply) {
+        return json({ error: "Gemini returned no text. Please try again." }, 502);
       }
 
-      if (!reply.trim()) {
-        return json({ error: "The AI returned no text. Please try again." }, 502);
-      }
-
-      return json({ reply: reply.trim() });
+      return json({ reply });
     } catch {
-      return json({ error: "Could not connect to the AI provider. Please try again." }, 502);
+      return json({ error: "Could not connect to Gemini. Please try again." }, 502);
     }
   }
 };
