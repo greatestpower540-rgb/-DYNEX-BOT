@@ -44,7 +44,7 @@ export default {
     let body;
     try {
       const length = Number(request.headers.get("content-length") || 0);
-      if (length > 30000) return json({ error: "Message is too large." }, 413);
+      if (length > 12_000_000) return json({ error: "Your upload is too large. Please keep each image or file under 8 MB." }, 413);
       body = await request.json();
     } catch {
       return json({ error: "Invalid request body." }, 400);
@@ -54,10 +54,46 @@ export default {
       return json({ error: "Please send a messages array." }, 400);
     }
 
-    const messages = body.messages.slice(-20).map((item) => ({
-      role: item?.role === "assistant" ? "model" : "user",
-      content: String(item?.content || "").trim().slice(0, 6000)
-    })).filter((item) => item.content);
+    const serializedSize = JSON.stringify(body).length;
+    if (serializedSize > 12_000_000) {
+      return json({ error: "Your upload is too large. Please keep each image or file under 8 MB." }, 413);
+    }
+
+    const allowedInlineTypes = new Set([
+      "image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"
+    ]);
+    const textTypes = new Set(["text/plain", "text/csv", "application/json"]);
+    const messages = [];
+
+    for (const item of body.messages.slice(-20)) {
+      const role = item?.role === "assistant" ? "model" : "user";
+      const content = String(item?.content || "").trim().slice(0, 6000);
+      const parts = [];
+      if (content) parts.push({ text: content });
+
+      const attachments = Array.isArray(item?.attachments) ? item.attachments.slice(0, 1) : [];
+      if (attachments.length && role !== "user") {
+        return json({ error: "Only user messages can include attachments." }, 400);
+      }
+
+      for (const attachment of attachments) {
+        const name = String(attachment?.name || "attachment").slice(0, 180);
+        const mimeType = String(attachment?.mimeType || "").toLowerCase().split(";")[0].trim();
+        if (textTypes.has(mimeType) && typeof attachment?.text === "string") {
+          parts.push({ text: `Attached text file: ${name}\n\n${attachment.text.slice(0, 150000)}` });
+          continue;
+        }
+        if (!allowedInlineTypes.has(mimeType) || typeof attachment?.data !== "string" || !attachment.data) {
+          return json({ error: "This file type is not supported. Use an image, PDF, TXT, CSV, or JSON file." }, 415);
+        }
+        if (attachment.data.length > 11_200_000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(attachment.data)) {
+          return json({ error: "The uploaded file is invalid or too large. Please choose a file under 8 MB." }, 400);
+        }
+        parts.push({ inlineData: { mimeType, data: attachment.data } });
+      }
+
+      if (parts.length) messages.push({ role, parts });
+    }
 
     if (!messages.length || messages[messages.length - 1].role !== "user") {
       return json({ error: "Your latest message is missing." }, 400);
@@ -67,9 +103,9 @@ export default {
     for (const message of messages) {
       const last = contents[contents.length - 1];
       if (last && last.role === message.role) {
-        last.parts[0].text += "\n\n" + message.content;
+        last.parts.push(...message.parts);
       } else {
-        contents.push({ role: message.role, parts: [{ text: message.content }] });
+        contents.push({ role: message.role, parts: message.parts });
       }
     }
 
