@@ -1,3 +1,4 @@
+// DYNEX media attachments use Expo SDK 58 image, document, and file-system modules.
 import React, { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
