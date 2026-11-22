@@ -145,7 +145,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 8 : 0}>
+      <KeyboardAvoidingView style={[styles.container, Platform.OS === "android" && styles.androidContainer]} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 8 : 0}>
         <View style={styles.header}>
           <View style={styles.brand}>
             <Image source={require("./assets/icon.png")} style={styles.avatar} />
@@ -234,27 +234,27 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  safe:{flex:1,backgroundColor:"#FFF"}, container:{flex:1,backgroundColor:"#FFF"},
+  safe:{flex:1,backgroundColor:"#FFF"}, container:{flex:1,backgroundColor:"#FFF"}, androidContainer:{paddingBottom:28},
   header:{height:68,paddingHorizontal:19,borderBottomWidth:1,borderBottomColor:"#F0F2F0",flexDirection:"row",alignItems:"center",justifyContent:"space-between"},
   brand:{flexDirection:"row",alignItems:"center",gap:11}, avatar:{width:43,height:43,borderRadius:22,backgroundColor:"#F1F7F2"},
   brandName:{color:"#17231B",fontSize:18,fontWeight:"900",letterSpacing:1.1},onlineRow:{flexDirection:"row",alignItems:"center",gap:5,marginTop:3},
   onlineDot:{width:6,height:6,borderRadius:3,backgroundColor:"#2BB66A"},onlineText:{color:"#7A897E",fontSize:9,fontWeight:"800",letterSpacing:1.2},
   headerActions:{flexDirection:"row",alignItems:"center",gap:9},headerButton:{width:40,height:40,borderRadius:21,backgroundColor:"#F3F6F3",alignItems:"center",justifyContent:"center"},
   headerButtonText:{fontSize:22,color:"#1E3827"},newChat:{width:42,height:42,borderRadius:22,backgroundColor:"#F3F6F3",alignItems:"center",justifyContent:"center"},
-  newChatText:{color:"#1E3827",fontSize:27,lineHeight:30},chat:{flex:1},chatContent:{flexGrow:1,paddingHorizontal:17,paddingTop:20,paddingBottom:24},
+  newChatText:{color:"#1E3827",fontSize:27,lineHeight:30},chat:{flex:1},chatContent:{flexGrow:1,paddingHorizontal:14,paddingTop:12,paddingBottom:12},
   welcome:{flex:1,minHeight:440,alignItems:"center",justifyContent:"center",paddingHorizontal:10},heroRobot:{width:132,height:132,marginBottom:20},
   welcomeTitle:{fontSize:26,lineHeight:33,fontWeight:"800",color:"#17231B",textAlign:"center"},welcomeSub:{fontSize:14,color:"#7B877F",marginTop:8,textAlign:"center"},
   suggestions:{width:"100%",gap:9,marginTop:30},suggestion:{minHeight:49,borderWidth:1,borderColor:"#E8EEE9",borderRadius:15,paddingHorizontal:15,flexDirection:"row",alignItems:"center",justifyContent:"space-between",backgroundColor:"#FFF"},
   suggestionText:{color:"#3A4B3F",fontSize:14,fontWeight:"600"},suggestionArrow:{color:"#24935A",fontSize:18},
-  messageRow:{flexDirection:"row",alignItems:"flex-end",marginBottom:17,gap:8},userRow:{justifyContent:"flex-end"},assistantRow:{justifyContent:"flex-start"},
-  messageAvatar:{width:27,height:27,borderRadius:14,marginBottom:3},bubble:{maxWidth:"88%",borderRadius:19,paddingHorizontal:15,paddingVertical:12},
+  messageRow:{flexDirection:"row",alignItems:"flex-end",marginBottom:12,gap:7},userRow:{justifyContent:"flex-end"},assistantRow:{justifyContent:"flex-start"},
+  messageAvatar:{width:27,height:27,borderRadius:14,marginBottom:3},bubble:{maxWidth:"90%",borderRadius:17,paddingHorizontal:13,paddingVertical:10},
   userBubble:{backgroundColor:"#EAF5ED",borderBottomRightRadius:5},assistantBubble:{backgroundColor:"#F5F6F5",borderBottomLeftRadius:5},
   messageText:{fontSize:15,lineHeight:23},userText:{color:"#20392A"},assistantText:{color:"#202923"},
   messageActions:{flexDirection:"row",gap:15,marginTop:10,borderTopWidth:1,borderTopColor:"#E8ECE9",paddingTop:7},
   actionText:{color:"#278653",fontSize:12,fontWeight:"700"},regenerate:{alignSelf:"flex-start",marginLeft:35,marginBottom:15,padding:8},
   typing:{flexDirection:"row",alignItems:"center",gap:8,marginBottom:12},typingBubble:{flexDirection:"row",alignItems:"center",gap:9,backgroundColor:"#F5F6F5",paddingHorizontal:14,paddingVertical:12,borderRadius:18},
-  typingText:{color:"#728078",fontSize:13},composer:{marginHorizontal:12,marginBottom:10,paddingHorizontal:15,paddingTop:13,paddingBottom:10,borderWidth:1,borderColor:"#E5EBE6",borderRadius:23,backgroundColor:"#FFF",elevation:3,shadowColor:"#17231B",shadowOpacity:.06,shadowRadius:9,shadowOffset:{width:0,height:3}},
-  input:{minHeight:43,maxHeight:125,color:"#17231B",fontSize:16,lineHeight:22,textAlignVertical:"top",paddingTop:4},
+  typingText:{color:"#728078",fontSize:13},composer:{marginHorizontal:10,marginBottom:4,paddingHorizontal:13,paddingTop:10,paddingBottom:8,borderWidth:1,borderColor:"#E5EBE6",borderRadius:23,backgroundColor:"#FFF",elevation:3,shadowColor:"#17231B",shadowOpacity:.06,shadowRadius:9,shadowOffset:{width:0,height:3}},
+  input:{minHeight:40,maxHeight:105,color:"#17231B",fontSize:15,lineHeight:21,textAlignVertical:"top",paddingTop:4},
   composerBottom:{flexDirection:"row",alignItems:"center",justifyContent:"space-between",marginTop:7,gap:7},hint:{color:"#9AA39D",fontSize:9,flex:1},
   toolsLink:{color:"#218B55",fontSize:12,fontWeight:"800"},sendButton:{width:39,height:39,borderRadius:20,backgroundColor:"#1F8C53",alignItems:"center",justifyContent:"center"},
   sendDisabled:{backgroundColor:"#AAB8AE"},sendIcon:{color:"#FFF",fontSize:25,fontWeight:"800",marginTop:-2},
