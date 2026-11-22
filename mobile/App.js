@@ -147,7 +147,7 @@ export default function App() {
     setTimeout(() => sendMessage(lastUser.content), 50);
   };
 
-  const deleteChat = (id) => Alert.alert("Delete conversation", "This conversation will be removed from this session.", [
+  const deleteChat = (id) => Alert.alert("Delete conversation", "This conversation will be removed from this device.", [
     { text: "Cancel", style: "cancel" },
     { text: "Delete", style: "destructive", onPress: () => {
       const remaining = chats.filter(c => c.id !== id);
@@ -322,7 +322,7 @@ export default function App() {
           {attachment && <View style={styles.attachmentPreview}>
             {attachment.kind === "image"
               ? <Image source={{ uri: attachment.uri }} style={styles.attachmentThumb} />
-              : <View style={styles.fileGlyph}><Text style={styles.fileGlyphText}>PDF</Text></View>}
+              : <View style={styles.fileGlyph}><Text style={styles.fileGlyphText}>FILE</Text></View>}
             <View style={styles.attachmentInfo}><Text numberOfLines={1} style={styles.attachmentName}>{attachment.name}</Text><Text style={styles.attachmentType}>{attachment.kind === "image" ? "Image attached" : "File attached"}</Text></View>
             <Pressable onPress={() => setAttachment(null)} style={styles.removeAttachment}><Text style={styles.removeAttachmentText}>×</Text></Pressable>
           </View>}
