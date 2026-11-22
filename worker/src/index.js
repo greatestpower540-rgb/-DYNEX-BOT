@@ -1,6 +1,6 @@
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
   "Content-Type": "application/json; charset=utf-8"
 };
@@ -17,13 +17,29 @@ export default {
       return new Response(null, { status: 204, headers: cors });
     }
 
-    if (url.pathname === "/health" && request.method === "GET") {
-      return json({ ok: true, service: "DYNEX AI", configured: Boolean(env.OPENAI_API_KEY) });
+    if (url.pathname === "/" && request.method === "GET") {
+      return json({ ok: true, service: "DYNEX BOT AI", message: "DYNEX AI server is running." });
     }
 
-    if (url.pathname !== "/chat") return json({ error: "Not found" }, 404);
-    if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
-    if (!env.OPENAI_API_KEY) return json({ error: "AI service is not configured yet." }, 503);
+    if (url.pathname === "/health" && request.method === "GET") {
+      return json({
+        ok: true,
+        service: "DYNEX BOT AI",
+        configured: Boolean(env.OPENAI_API_KEY)
+      });
+    }
+
+    if (url.pathname !== "/chat") {
+      return json({ error: "DYNEX endpoint not found." }, 404);
+    }
+
+    if (request.method !== "POST") {
+      return json({ error: "POST method required." }, 405);
+    }
+
+    if (!env.OPENAI_API_KEY) {
+      return json({ error: "AI service is not configured." }, 503);
+    }
 
     let body;
     try {
@@ -35,10 +51,10 @@ export default {
     }
 
     if (!Array.isArray(body.messages) || body.messages.length === 0) {
-      return json({ error: "Send at least one message." }, 400);
+      return json({ error: "Please send a messages array." }, 400);
     }
 
-    const messages = body.messages.slice(-16).map((item) => ({
+    const messages = body.messages.slice(-20).map((item) => ({
       role: item?.role === "assistant" ? "assistant" : "user",
       content: String(item?.content || "").trim().slice(0, 6000)
     })).filter((item) => item.content);
@@ -64,11 +80,16 @@ export default {
       });
 
       const result = await upstream.json();
+
       if (!upstream.ok) {
-        return json({ error: "The AI provider could not complete this request. Check the API key, model access, and billing." }, 502);
+        return json({
+          error: "The AI provider could not complete this request. Check the API key, model access, and billing.",
+          provider_status: upstream.status
+        }, 502);
       }
 
       let reply = result.output_text || "";
+
       if (!reply && Array.isArray(result.output)) {
         reply = result.output
           .filter((item) => item.type === "message")
@@ -78,7 +99,10 @@ export default {
           .join("\n");
       }
 
-      if (!reply.trim()) return json({ error: "The AI returned no text. Please try again." }, 502);
+      if (!reply.trim()) {
+        return json({ error: "The AI returned no text. Please try again." }, 502);
+      }
+
       return json({ reply: reply.trim() });
     } catch {
       return json({ error: "Could not connect to the AI provider. Please try again." }, 502);
