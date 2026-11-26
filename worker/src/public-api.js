@@ -104,6 +104,56 @@ async function createDeveloper(request, env) {
   }, 201);
 }
 
+
+async function rotateDeveloperKey(request, env) {
+  if (!env.DYNEX_API_ADMIN_SECRET) {
+    return apiJson({ error: "Developer key rotation is not configured." }, 503);
+  }
+  const supplied = request.headers.get("X-Dynex-Admin-Key") || "";
+  if (supplied.length !== env.DYNEX_API_ADMIN_SECRET.length || supplied !== env.DYNEX_API_ADMIN_SECRET) {
+    return apiJson({ error: "Not authorized." }, 401);
+  }
+
+  let body;
+  try { body = await request.json(); } catch { return apiJson({ error: "Invalid JSON body." }, 400); }
+  const email = String(body?.email || "").trim().toLowerCase();
+  const name = String(body?.name || "Replacement key").trim().slice(0, 80) || "Replacement key";
+  const dailyLimit = Math.min(10000, Math.max(1, Number.parseInt(body?.daily_limit, 10) || 100));
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+    return apiJson({ error: "A valid developer email is required." }, 400);
+  }
+
+  const developer = await env.DB.prepare(
+    "SELECT id, status FROM api_developers WHERE email = ? LIMIT 1"
+  ).bind(email).first();
+  if (!developer || developer.status !== "active") {
+    return apiJson({ error: "An active developer account with this email was not found." }, 404);
+  }
+
+  const apiKeyId = id();
+  const secret = randomKey();
+  const keyHash = await sha256(secret);
+  const prefix = secret.slice(0, 16);
+  try {
+    await env.DB.batch([
+      env.DB.prepare("UPDATE api_keys SET status = 'revoked' WHERE developer_id = ? AND status = 'active'")
+        .bind(developer.id),
+      env.DB.prepare("INSERT INTO api_keys (id, developer_id, key_hash, key_prefix, name, daily_limit) VALUES (?, ?, ?, ?, ?, ?)")
+        .bind(apiKeyId, developer.id, keyHash, prefix, name, dailyLimit)
+    ]);
+  } catch {
+    return apiJson({ error: "Could not rotate the developer API key." }, 500);
+  }
+
+  return apiJson({
+    ok: true,
+    developer: { id: developer.id, email },
+    api_key: secret,
+    key_warning: "Copy this replacement key now. It is shown only once and cannot be recovered. Previous active keys for this developer have been revoked.",
+    daily_limit: dailyLimit
+  }, 201);
+}
+
 async function chat(request, env, keyId) {
   let body;
   try { body = await request.json(); } catch { return apiJson({ error: "Invalid JSON body." }, 400); }
@@ -166,6 +216,12 @@ export async function handlePublicApi(request, env, url) {
   if (url.pathname === "/v1/admin/developers" && request.method === "POST") {
     return createDeveloper(request, env);
   }
+
+
+  if (url.pathname === "/v1/admin/keys/rotate" && request.method === "POST") {
+    return rotateDeveloperKey(request, env);
+  }
+
 
   if (url.pathname === "/v1/models" && request.method === "GET") {
     const auth = await authenticate(request, env);
