@@ -234,6 +234,12 @@ export default function App() {
     { text: "Cancel", style: "cancel" }
   ]);
 
+  // Keep the microphone control honest until speech recognition is integrated.
+  const showVoiceInputInfo = () => Alert.alert(
+    "Voice input",
+    "Voice dictation is not connected yet. You can type your message or attach a file."
+  );
+
   const showMoreOptions = () => Alert.alert("DYNEX", "Choose an option.", [
     { text: "Chat history", onPress: () => setScreen("history") },
     { text: "AI tools", onPress: () => setScreen("tools") },
@@ -321,7 +327,7 @@ export default function App() {
                 </View>
               </View>
             ))}
-            {busy && <View style={styles.typing}><Image source={require("./assets/icon.png")} style={styles.messageAvatar} /><View style={styles.typingBubble}><ActivityIndicator size="small" color="#218B55" /><Text style={styles.typingText}>DYNEX is thinking…</Text></View></View>}
+            {busy && <View style={styles.typing}><Image source={require("./assets/icon.png")} style={styles.messageAvatar} /><View style={styles.typingBubble}><ActivityIndicator size="small" color="#218B55" /><Text style={styles.typingText}>Preparing your answer…</Text></View></View>}
             {!busy && messages.some(m => m.role === "assistant" && m.id !== "welcome") && <Pressable style={styles.regenerate} onPress={regenerate}><Text style={styles.actionText}>↻ Regenerate last answer</Text></Pressable>}
           </ScrollView>
         )}
@@ -337,6 +343,9 @@ export default function App() {
           <View style={styles.composeRow}>
             <Pressable style={styles.attachButton} onPress={chooseAttachment} disabled={busy} accessibilityLabel="Add image or file"><Text style={styles.attachButtonText}>＋</Text></Pressable>
             <TextInput style={styles.input} placeholder="Message DYNEX..." placeholderTextColor="#929A94" value={draft} onChangeText={setDraft} multiline maxLength={6000} editable={!busy} returnKeyType="default" />
+            <Pressable style={styles.voiceButton} onPress={showVoiceInputInfo} disabled={busy} accessibilityLabel="Voice input information">
+              <Text style={styles.voiceButtonText}>🎙</Text>
+            </Pressable>
             <Pressable style={[styles.sendButton, (!draft.trim() && !attachment || busy) && styles.sendDisabled]} onPress={() => sendMessage()} disabled={(!draft.trim() && !attachment) || busy}>
               {busy ? <ActivityIndicator color="#FFFFFF" size="small" /> : <Text style={styles.sendIcon}>↑</Text>}
             </Pressable>
@@ -420,6 +429,8 @@ const styles = StyleSheet.create({
   attachButton:{width:39,height:39,borderRadius:20,backgroundColor:"#F0F5F1",alignItems:"center",justifyContent:"center"},
   attachButtonText:{color:"#1F8C53",fontSize:27,lineHeight:30,fontWeight:"500"},
   input:{flex:1,minHeight:40,maxHeight:105,color:"#17231B",fontSize:15,lineHeight:21,textAlignVertical:"center",paddingTop:8,paddingBottom:6},
+  voiceButton:{width:35,height:39,borderRadius:19,alignItems:"center",justifyContent:"center",backgroundColor:"#F5F7F5"},
+  voiceButtonText:{fontSize:17,color:"#52645A"},
   composerFooter:{flexDirection:"row",alignItems:"center",justifyContent:"space-between",marginTop:6,paddingLeft:3,gap:8},
   hint:{color:"#9AA39D",fontSize:9,flex:1,textAlign:"right"},
   toolsLink:{color:"#218B55",fontSize:12,fontWeight:"800"},
