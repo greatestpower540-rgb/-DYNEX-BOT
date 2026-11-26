@@ -119,12 +119,18 @@ export default function App() {
           }]
         } : {})
       }));
+      const imageEdit = Boolean(
+        selected?.kind === "image" &&
+        /\b(edit|change|remove|replace|enhance|retouch|restore|recolor|redesign|make it|turn it into|add to|erase|crop|blur|sharpen)\b/i.test(text)
+      );
       requestController = new AbortController();
-      requestTimeout = setTimeout(() => requestController.abort(), 40000);
-      const response = await fetch(API_URL, {
+      requestTimeout = setTimeout(() => requestController.abort(), imageEdit ? 90000 : 40000);
+      const response = await fetch(imageEdit ? API_URL.replace("/chat", "/image-edit") : API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: imageEdit
+          ? JSON.stringify({ prompt: text, image: { mimeType: selected.mimeType, data: selected.data } })
+          : JSON.stringify({ messages: apiMessages }),
         signal: requestController.signal
       });
       const data = await response.json().catch(() => ({}));
@@ -134,8 +140,19 @@ export default function App() {
         throw new Error(detail + status);
       }
       const answer = String(data.reply || "").trim();
-      if (!answer) throw new Error("DYNEX returned an empty reply. Please try again.");
-      updateMessages(current => [...current, { id: makeId(), role: "assistant", content: answer }]);
+      if (imageEdit) {
+        if (!data.image?.data) throw new Error(answer || "The image editor did not return an edited image.");
+        const imageMime = data.image.mimeType || "image/png";
+        updateMessages(current => [...current, {
+          id: makeId(),
+          role: "assistant",
+          content: answer || "Here's your edited image.",
+          generatedImage: `data:${imageMime};base64,${data.image.data}`
+        }]);
+      } else {
+        if (!answer) throw new Error("DYNEX returned an empty reply. Please try again.");
+        updateMessages(current => [...current, { id: makeId(), role: "assistant", content: answer }]);
+      }
     } catch (error) {
       const detail = requestController?.signal?.aborted
         ? "DYNEX took too long to respond. Please try again."
@@ -320,6 +337,7 @@ export default function App() {
                   {item.attachments?.map((file, index) => file.kind === "image"
                     ? <Image key={index} source={{ uri: file.uri }} style={styles.messageImage} resizeMode="cover" />
                     : <View key={index} style={styles.messageFile}><Text style={styles.messageFileText}>📎  {file.name}</Text></View>)}
+                  {item.generatedImage && <Image source={{ uri: item.generatedImage }} style={styles.messageImage} resizeMode="contain" />}
                   <Text selectable style={[styles.messageText, item.role === "user" ? styles.userText : styles.assistantText]}>{item.content}</Text>
                   {item.role === "assistant" && <View style={styles.messageActions}>
                     <Pressable style={[styles.feedbackButton, messageFeedback[item.id] === "like" && styles.feedbackSelected]} onPress={() => setMessageFeedback(current => ({ ...current, [item.id]: current[item.id] === "like" ? null : "like" }))} accessibilityLabel="Good response">
