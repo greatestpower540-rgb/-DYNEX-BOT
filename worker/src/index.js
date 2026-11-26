@@ -49,7 +49,6 @@ export default {
     }
 
     if (url.pathname === "/image-generate" && request.method === "POST") {
-      if (!env.GEMINI_API_KEY) return json({ error: "Gemini AI service is not configured." }, 503);
       let body;
       try {
         const length = Number(request.headers.get("content-length") || 0);
@@ -60,34 +59,24 @@ export default {
       }
       const prompt = String(body?.prompt || "").trim().slice(0, 2000);
       if (!prompt) return json({ error: "Describe the image you want DYNEX to create." }, 400);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 110000);
+      if (!env.AI) return json({ error: "Cloudflare Workers AI is not enabled for this Worker. Add the AI binding and redeploy." }, 503);
       try {
-        const upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent", {
-          method: "POST",
-          headers: { "x-goog-api-key": env.GEMINI_API_KEY, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
-          }),
-          signal: controller.signal
+        const form = new FormData();
+        form.append("prompt", prompt);
+        form.append("width", "1024");
+        form.append("height", "1024");
+        const encoded = new Response(form);
+        const result = await env.AI.run("@cf/black-forest-labs/flux-2-klein-4b", {
+          multipart: { body: encoded.body, contentType: encoded.headers.get("content-type") }
         });
-        const result = await upstream.json().catch(() => ({}));
-        if (!upstream.ok) return json({ error: result?.error?.message || "The image generator could not complete this request.", provider_status: upstream.status }, 502);
-        const parts = result?.candidates?.flatMap(candidate => candidate.content?.parts || []) || [];
-        const imagePart = parts.find(part => part.inlineData?.data);
-        const reply = parts.filter(part => typeof part.text === "string").map(part => part.text).join("\n").trim();
-        if (!imagePart) return json({ error: reply || "The image model did not return an image. Try a more specific prompt." }, 502);
-        return json({ reply: reply || "Here is your generated image.", image: { mimeType: imagePart.inlineData.mimeType || "image/png", data: imagePart.inlineData.data } });
+        if (!result?.image) return json({ error: "FLUX.2 did not return an image. Please try another prompt." }, 502);
+        return json({ reply: "Here is your generated image.", image: { mimeType: "image/png", data: result.image } });
       } catch (error) {
-        if (error?.name === "AbortError" || controller.signal.aborted) return json({ error: "Image generation took too long. Please try again." }, 504);
-        return json({ error: "Could not connect to the image generator. Please try again." }, 502);
-      } finally {
-        clearTimeout(timeoutId);
+        return json({ error: error?.message || "Cloudflare image generation failed." }, 502);
       }
     }
+
     if (url.pathname === "/image-edit" && request.method === "POST") {
-      if (!env.GEMINI_API_KEY) return json({ error: "Gemini AI service is not configured." }, 503);
       let body;
       try {
         const length = Number(request.headers.get("content-length") || 0);
@@ -96,7 +85,6 @@ export default {
       } catch {
         return json({ error: "Invalid image-edit request." }, 400);
       }
-
       const prompt = String(body?.prompt || "").trim().slice(0, 2000);
       const mimeType = String(body?.image?.mimeType || "").toLowerCase().split(";")[0].trim();
       const imageData = body?.image?.data;
@@ -106,60 +94,22 @@ export default {
           imageData.length > 11_200_000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(imageData)) {
         return json({ error: "Please attach a valid JPG, PNG, or WEBP image under 8 MB." }, 400);
       }
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 110000);
+      if (!env.AI) return json({ error: "Cloudflare Workers AI is not enabled for this Worker. Add the AI binding and redeploy." }, 503);
       try {
-        const upstream = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
-          {
-            method: "POST",
-            headers: {
-              "x-goog-api-key": env.GEMINI_API_KEY,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              contents: [{
-                role: "user",
-                parts: [
-                  { inlineData: { mimeType, data: imageData } },
-                  { text: "Edit the supplied image according to these instructions. Preserve the original subject and important identity-defining details unless the user explicitly asks to change them. Return the edited image. User instructions: " + prompt }
-                ]
-              }],
-              generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
-            }),
-            signal: controller.signal
-          }
-        );
-        const result = await upstream.json().catch(() => ({}));
-        if (!upstream.ok) {
-          return json({
-            error: result?.error?.message || "The image editor could not complete this edit.",
-            provider_status: upstream.status
-          }, 502);
-        }
-        const parts = result?.candidates?.flatMap(candidate => candidate.content?.parts || []) || [];
-        const imagePart = parts.find(part => part.inlineData?.data);
-        const reply = parts.filter(part => typeof part.text === "string").map(part => part.text).join("\n").trim();
-        if (!imagePart) {
-          return json({
-            error: reply || "The image model did not return an edited image. Try a simpler instruction."
-          }, 502);
-        }
-        return json({
-          reply: reply || "Here's your edited image.",
-          image: {
-            mimeType: imagePart.inlineData.mimeType || "image/png",
-            data: imagePart.inlineData.data
-          }
+        const binary = Uint8Array.from(atob(imageData), char => char.charCodeAt(0));
+        const form = new FormData();
+        form.append("prompt", "Edit the supplied image according to these instructions. Preserve the original subject and important details unless asked otherwise. " + prompt);
+        form.append("input_image_0", new Blob([binary], { type: mimeType }), "input-image");
+        form.append("width", "1024");
+        form.append("height", "1024");
+        const encoded = new Response(form);
+        const result = await env.AI.run("@cf/black-forest-labs/flux-2-klein-4b", {
+          multipart: { body: encoded.body, contentType: encoded.headers.get("content-type") }
         });
+        if (!result?.image) return json({ error: "FLUX.2 did not return an edited image. Try a simpler instruction." }, 502);
+        return json({ reply: "Here is your edited image.", image: { mimeType: "image/png", data: result.image } });
       } catch (error) {
-        if (error?.name === "AbortError" || controller.signal.aborted) {
-          return json({ error: "Image editing took too long. Please try again." }, 504);
-        }
-        return json({ error: "Could not connect to the image editor. Please try again." }, 502);
-      } finally {
-        clearTimeout(timeoutId);
+        return json({ error: error?.message || "Cloudflare image editing failed." }, 502);
       }
     }
 
