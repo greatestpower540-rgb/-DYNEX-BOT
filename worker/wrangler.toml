@@ -2,6 +2,11 @@ name = "dynex-bot-ai5dcf"
 main = "src/index.js"
 compatibility_date = "2026-11-21"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "dynex-api-db"
+database_id = "0d1118fc-8231-46f8-901d-cc6e133e16d8"
+
 [previews]
 
 # Cloudflare Workers Git deployment configuration.
