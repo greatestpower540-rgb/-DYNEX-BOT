@@ -33,7 +33,9 @@ export default {
         service: "DYNEX BOT AI",
         configured: Boolean(env.GEMINI_API_KEY),
         provider: "Gemini",
-        models: ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"]
+        models: ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"],
+        image_edit_model: "gemini-nano-banana-2.1",
+        capabilities: ["chat", "image-edit"]
       });
     }
 
@@ -59,10 +61,10 @@ export default {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 55000);
+      const timeoutId = setTimeout(() => controller.abort(), 110000);
       try {
         const upstream = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent",
           {
             method: "POST",
             headers: {
