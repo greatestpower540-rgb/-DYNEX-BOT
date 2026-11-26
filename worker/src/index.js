@@ -31,17 +31,17 @@ export default {
       return json({
         ok: true,
         service: "DYNEX BOT AI",
-        configured: Boolean(env.GEMINI_API_KEY),
-        provider: "Gemini",
+        configured: Boolean(env.AI),
+        provider: "Cloudflare Workers AI",
         models: ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"],
-        image_edit_model: "gemini-nano-banana-2.1",
+        image_model: "@cf/black-forest-labs/flux-2-klein-4b",
         capabilities: ["chat", "image-edit", "image-generate"]
       });
     }
 
     // Lightweight route probes let us confirm these handlers are deployed without sending an image.
     if (url.pathname === "/image-generate" && request.method === "GET") {
-      return json({ ok: true, endpoint: "image-generate", method: "POST", model: "gemini-nano-banana-2.1" });
+      return json({ ok: true, endpoint: "image-generate", method: "POST", model: "@cf/black-forest-labs/flux-2-klein-4b" });
     }
 
     if (url.pathname === "/image-edit" && request.method === "GET") {
