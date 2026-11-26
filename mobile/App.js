@@ -10,7 +10,10 @@ import {
   Alert, Keyboard, Share, Modal
 } from "react-native";
 
-const API_URL = "https://chatgpt-ui-redesign-dynex-bot-ai5dcf.destinychukwudi209.workers.dev/chat";
+const API_BASE_URL = "https://chatgpt-ui-redesign-dynex-bot-ai5dcf.destinychukwudi209.workers.dev";
+const API_URL = `${API_BASE_URL}/chat`;
+const IMAGE_EDIT_URL = `${API_BASE_URL}/image-edit`;
+const IMAGE_GENERATE_URL = `${API_BASE_URL}/image-generate`;
 const makeId = () => String(Date.now()) + Math.random().toString(36).slice(2, 7);
 const starter = { id: "welcome", role: "assistant", content: "Hi! I'm DYNEX, your AI assistant. Ask me anything — I can explain ideas, help you write, learn, plan, and solve problems." };
 const tools = [
@@ -126,7 +129,8 @@ export default function App() {
       );
       requestController = new AbortController();
       requestTimeout = setTimeout(() => requestController.abort(), (imageEdit || imageGenerate) ? 150000 : 40000);
-      const response = await fetch(imageEdit ? API_URL.replace("/chat", "/image-edit") : imageGenerate ? API_URL.replace("/chat", "/image-generate") : API_URL, {
+      const requestUrl = imageEdit ? IMAGE_EDIT_URL : imageGenerate ? IMAGE_GENERATE_URL : API_URL;
+      const response = await fetch(requestUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: imageEdit
@@ -136,11 +140,13 @@ export default function App() {
             : JSON.stringify({ messages: apiMessages }),
         signal: requestController.signal
       });
-      const data = await response.json().catch(() => ({}));
+      const responseText = await response.text();
+      let data = {};
+      try { data = responseText ? JSON.parse(responseText) : {}; } catch {}
       if (!response.ok) {
-        const detail = data.error || "The AI service returned an error.";
+        const detail = data.error || (responseText ? responseText.slice(0, 220) : "The server returned an empty error response.");
         const status = data.provider_status ? ` (provider status: ${data.provider_status})` : ` (HTTP ${response.status})`;
-        throw new Error(detail + status);
+        throw new Error(detail + status + ` [${requestUrl}]`);
       }
       const answer = String(data.reply || "").trim();
       if (imageEdit || imageGenerate) {
