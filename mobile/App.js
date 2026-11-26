@@ -124,7 +124,7 @@ export default function App() {
         /\b(edit|change|remove|replace|enhance|retouch|restore|recolor|redesign|make it|turn it into|add to|erase|crop|blur|sharpen)\b/i.test(text)
       );
       requestController = new AbortController();
-      requestTimeout = setTimeout(() => requestController.abort(), imageEdit ? 90000 : 40000);
+      requestTimeout = setTimeout(() => requestController.abort(), imageEdit ? 150000 : 40000);
       const response = await fetch(imageEdit ? API_URL.replace("/chat", "/image-edit") : API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
