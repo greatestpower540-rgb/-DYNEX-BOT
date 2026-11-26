@@ -1,3 +1,5 @@
+import { handlePublicApi } from "./public-api.js";
+
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -22,6 +24,9 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors });
     }
+
+    const publicApiResponse = await handlePublicApi(request, env, url);
+    if (publicApiResponse) return publicApiResponse;
 
     if (url.pathname === "/" && request.method === "GET") {
       return json({ ok: true, service: "DYNEX BOT AI", message: "DYNEX AI server is running." });
