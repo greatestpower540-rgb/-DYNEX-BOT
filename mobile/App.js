@@ -105,6 +105,8 @@ export default function App() {
     setChats(current => current.map(c => c.id === activeId && c.title === "New conversation"
       ? { ...c, title: messageText.slice(0, 38) } : c));
     setBusy(true);
+    let requestTimeout;
+    let requestController;
     try {
       const apiMessages = next.filter(item => item.id !== "welcome").slice(-20).map(item => ({
         role: item.role,
@@ -117,10 +119,13 @@ export default function App() {
           }]
         } : {})
       }));
+      requestController = new AbortController();
+      requestTimeout = setTimeout(() => requestController.abort(), 40000);
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages })
+        body: JSON.stringify({ messages: apiMessages }),
+        signal: requestController.signal
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -132,9 +137,12 @@ export default function App() {
       if (!answer) throw new Error("DYNEX returned an empty reply. Please try again.");
       updateMessages(current => [...current, { id: makeId(), role: "assistant", content: answer }]);
     } catch (error) {
-      const detail = error?.message || "Unknown connection error.";
+      const detail = requestController?.signal?.aborted
+        ? "DYNEX took too long to respond. Please try again."
+        : (error?.message || "Unknown connection error.");
       updateMessages(current => [...current, { id: makeId(), role: "assistant", content: `DYNEX couldn't complete that request: ${detail}` }]);
     } finally {
+      if (requestTimeout) clearTimeout(requestTimeout);
       setBusy(false);
     }
   };
