@@ -33,6 +33,7 @@ export default function App() {
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [attachment, setAttachment] = useState(null);
+  const [messageFeedback, setMessageFeedback] = useState({});
   const scrollRef = useRef(null);
   const activeChat = chats.find(c => c.id === activeId) || chats[0];
   const messages = activeChat?.messages || [starter];
@@ -307,8 +308,15 @@ export default function App() {
                     : <View key={index} style={styles.messageFile}><Text style={styles.messageFileText}>📎  {file.name}</Text></View>)}
                   <Text selectable style={[styles.messageText, item.role === "user" ? styles.userText : styles.assistantText]}>{item.content}</Text>
                   {item.role === "assistant" && <View style={styles.messageActions}>
-                    <Pressable onPress={() => shareText(item.content)}><Text style={styles.actionText}>↗ Share</Text></Pressable>
-                    <Pressable onPress={() => shareText(item.content)}><Text style={styles.actionText}>Copy / Share</Text></Pressable>
+                    <Pressable style={[styles.feedbackButton, messageFeedback[item.id] === "like" && styles.feedbackSelected]} onPress={() => setMessageFeedback(current => ({ ...current, [item.id]: current[item.id] === "like" ? null : "like" }))} accessibilityLabel="Good response">
+                      <Text style={[styles.feedbackIcon, messageFeedback[item.id] === "like" && styles.feedbackIconSelected]}>♡</Text>
+                    </Pressable>
+                    <Pressable style={[styles.feedbackButton, messageFeedback[item.id] === "dislike" && styles.feedbackSelected]} onPress={() => setMessageFeedback(current => ({ ...current, [item.id]: current[item.id] === "dislike" ? null : "dislike" }))} accessibilityLabel="Bad response">
+                      <Text style={[styles.feedbackIcon, messageFeedback[item.id] === "dislike" && styles.feedbackIconSelected]}>☹</Text>
+                    </Pressable>
+                    <Pressable style={styles.actionButton} onPress={() => shareText(item.content)} accessibilityLabel="Share response">
+                      <Text style={styles.actionText}>↗ Share</Text>
+                    </Pressable>
                   </View>}
                 </View>
               </View>
