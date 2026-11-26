@@ -113,54 +113,69 @@ export default {
     let lastStatus = 503;
     let lastError = "Gemini is temporarily busy. Please try again shortly.";
 
+    const deadline = Date.now() + 33000;
+
     for (const model of models) {
-      // One bounded retry for temporary capacity/rate-limit responses, then fall back.
-      for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-          const upstream = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-            {
-              method: "POST",
-              headers: {
-                "x-goog-api-key": env.GEMINI_API_KEY,
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-                contents,
-                generationConfig: { maxOutputTokens: 900 }
-              })
-            }
-          );
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
+        lastStatus = 504;
+        lastError = "The AI request exceeded its time limit.";
+        break;
+      }
 
-          const result = await upstream.json().catch(() => ({}));
+      const controller = new AbortController();
+      const timeoutMs = Math.min(11000, remaining);
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-          if (upstream.ok) {
-            const reply = (result.candidates || [])
-              .flatMap((candidate) => candidate.content?.parts || [])
-              .filter((part) => typeof part.text === "string")
-              .map((part) => part.text)
-              .join("\n")
-              .trim();
-
-            if (reply) return json({ reply, model });
-            lastError = "Gemini returned no text. Please try again.";
-            lastStatus = 502;
-            break;
+      try {
+        const upstream = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+          {
+            method: "POST",
+            headers: {
+              "x-goog-api-key": env.GEMINI_API_KEY,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+              contents,
+              generationConfig: { maxOutputTokens: 900 }
+            }),
+            signal: controller.signal
           }
+        );
 
-          lastStatus = upstream.status;
-          lastError = result?.error?.message || "Gemini could not complete this request.";
-          if (upstream.status !== 503 && upstream.status !== 429 && upstream.status !== 500) {
-            return json({ error: lastError, provider_status: lastStatus, model }, 502);
-          }
-        } catch {
-          lastError = "Could not connect to Gemini. Please try again.";
+        const result = await upstream.json().catch(() => ({}));
+
+        if (upstream.ok) {
+          const reply = (result.candidates || [])
+            .flatMap((candidate) => candidate.content?.parts || [])
+            .filter((part) => typeof part.text === "string")
+            .map((part) => part.text)
+            .join("\n")
+            .trim();
+
+          if (reply) return json({ reply, model });
+          lastError = "Gemini returned no text. Please try again.";
           lastStatus = 502;
-          break;
+          continue;
         }
 
-        if (attempt === 0) await wait(700);
+        lastStatus = upstream.status;
+        lastError = result?.error?.message || "Gemini could not complete this request.";
+        if (upstream.status !== 503 && upstream.status !== 429 && upstream.status !== 500) {
+          return json({ error: lastError, provider_status: lastStatus, model }, 502);
+        }
+      } catch (error) {
+        if (error?.name === "AbortError" || controller.signal.aborted) {
+          lastError = "Gemini took too long to respond. Please try again.";
+          lastStatus = 504;
+        } else {
+          lastError = "Could not connect to Gemini. Please try again.";
+          lastStatus = 502;
+        }
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
 
