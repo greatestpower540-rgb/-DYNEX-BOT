@@ -119,18 +119,21 @@ export default function App() {
           }]
         } : {})
       }));
+      const imageGenerate = Boolean(!selected && /^(?:please\s+)?(?:generate|create|draw|make)\s+(?:an?\s+)?image\b/i.test(text));
       const imageEdit = Boolean(
         selected?.kind === "image" &&
         /\b(edit|change|remove|replace|enhance|retouch|restore|recolor|redesign|make it|turn it into|add to|erase|crop|blur|sharpen)\b/i.test(text)
       );
       requestController = new AbortController();
-      requestTimeout = setTimeout(() => requestController.abort(), imageEdit ? 150000 : 40000);
-      const response = await fetch(imageEdit ? API_URL.replace("/chat", "/image-edit") : API_URL, {
+      requestTimeout = setTimeout(() => requestController.abort(), (imageEdit || imageGenerate) ? 150000 : 40000);
+      const response = await fetch(imageEdit ? API_URL.replace("/chat", "/image-edit") : imageGenerate ? API_URL.replace("/chat", "/image-generate") : API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: imageEdit
           ? JSON.stringify({ prompt: text, image: { mimeType: selected.mimeType, data: selected.data } })
-          : JSON.stringify({ messages: apiMessages }),
+          : imageGenerate
+            ? JSON.stringify({ prompt: text })
+            : JSON.stringify({ messages: apiMessages }),
         signal: requestController.signal
       });
       const data = await response.json().catch(() => ({}));
@@ -140,8 +143,8 @@ export default function App() {
         throw new Error(detail + status);
       }
       const answer = String(data.reply || "").trim();
-      if (imageEdit) {
-        if (!data.image?.data) throw new Error(answer || "The image editor did not return an edited image.");
+      if (imageEdit || imageGenerate) {
+        if (!data.image?.data) throw new Error(answer || (imageGenerate ? "The image generator did not return an image." : "The image editor did not return an edited image."));
         const imageMime = data.image.mimeType || "image/png";
         updateMessages(current => [...current, {
           id: makeId(),
@@ -397,7 +400,7 @@ export default function App() {
             </View>
             <Pressable style={styles.drawerAction} onPress={newChat}><Text style={styles.drawerActionIcon}>＋</Text><Text style={styles.drawerActionText}>New chat</Text></Pressable>
             <Pressable style={styles.drawerItem} onPress={() => { setScreen("history"); setDrawerOpen(false); }}><Text style={styles.drawerItemIcon}>⌕</Text><Text style={styles.drawerItemText}>Search conversations</Text></Pressable>
-            <Pressable style={styles.drawerItem} onPress={() => Alert.alert("Images", "Image creation tools are not connected in this version yet.")}><Text style={styles.drawerItemIcon}>▧</Text><Text style={styles.drawerItemText}>Images</Text></Pressable>
+            <Pressable style={styles.drawerItem} onPress={() => { setScreen("chat"); setDrawerOpen(false); setDraft("Generate an image of "); }}><Text style={styles.drawerItemIcon}>▧</Text><Text style={styles.drawerItemText}>Images</Text></Pressable>
             <Pressable style={styles.drawerItem} onPress={() => Alert.alert("Library", "Your saved-file library is not connected in this version yet.")}><Text style={styles.drawerItemIcon}>▤</Text><Text style={styles.drawerItemText}>Library</Text></Pressable>
             <Pressable style={styles.drawerItem} onPress={() => Alert.alert("Customize", "Assistant customization is coming after this interface update.")}><Text style={styles.drawerItemIcon}>⚙</Text><Text style={styles.drawerItemText}>Customize</Text></Pressable>
             <Pressable style={styles.drawerItem} onPress={() => Alert.alert("Projects", "Projects are not connected in this version yet.")}><Text style={styles.drawerItemIcon}>▣</Text><Text style={styles.drawerItemText}>Projects</Text></Pressable>
