@@ -1,6 +1,9 @@
 name: Build DYNEX BOT Android APK
 
 on:
+  push:
+    branches:
+      - chatgpt-ui-redesign
   workflow_dispatch:
 
 permissions:
