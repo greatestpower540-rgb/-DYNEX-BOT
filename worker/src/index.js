@@ -35,10 +35,48 @@ export default {
         provider: "Gemini",
         models: ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"],
         image_edit_model: "gemini-nano-banana-2.1",
-        capabilities: ["chat", "image-edit"]
+        capabilities: ["chat", "image-edit", "image-generate"]
       });
     }
 
+    if (url.pathname === "/image-generate" && request.method === "POST") {
+      if (!env.GEMINI_API_KEY) return json({ error: "Gemini AI service is not configured." }, 503);
+      let body;
+      try {
+        const length = Number(request.headers.get("content-length") || 0);
+        if (length > 12000) return json({ error: "Please shorten your image prompt." }, 413);
+        body = await request.json();
+      } catch {
+        return json({ error: "Invalid image-generation request." }, 400);
+      }
+      const prompt = String(body?.prompt || "").trim().slice(0, 2000);
+      if (!prompt) return json({ error: "Describe the image you want DYNEX to create." }, 400);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 110000);
+      try {
+        const upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent", {
+          method: "POST",
+          headers: { "x-goog-api-key": env.GEMINI_API_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
+          }),
+          signal: controller.signal
+        });
+        const result = await upstream.json().catch(() => ({}));
+        if (!upstream.ok) return json({ error: result?.error?.message || "The image generator could not complete this request.", provider_status: upstream.status }, 502);
+        const parts = result?.candidates?.flatMap(candidate => candidate.content?.parts || []) || [];
+        const imagePart = parts.find(part => part.inlineData?.data);
+        const reply = parts.filter(part => typeof part.text === "string").map(part => part.text).join("\n").trim();
+        if (!imagePart) return json({ error: reply || "The image model did not return an image. Try a more specific prompt." }, 502);
+        return json({ reply: reply || "Here is your generated image.", image: { mimeType: imagePart.inlineData.mimeType || "image/png", data: imagePart.inlineData.data } });
+      } catch (error) {
+        if (error?.name === "AbortError" || controller.signal.aborted) return json({ error: "Image generation took too long. Please try again." }, 504);
+        return json({ error: "Could not connect to the image generator. Please try again." }, 502);
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
     if (url.pathname === "/image-edit" && request.method === "POST") {
       if (!env.GEMINI_API_KEY) return json({ error: "Gemini AI service is not configured." }, 503);
       let body;
