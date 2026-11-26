@@ -352,11 +352,15 @@ export default function App() {
               <View style={styles.drawerBrand}><Image source={require("./assets/icon.png")} style={styles.drawerAvatar} /><Text style={styles.drawerTitle}>DYNEX</Text></View>
               <Pressable onPress={() => setDrawerOpen(false)} style={styles.drawerClose}><Text style={styles.drawerCloseText}>×</Text></Pressable>
             </View>
-            <Pressable style={styles.drawerAction} onPress={newChat}><Text style={styles.drawerActionIcon}>＋</Text><Text style={styles.drawerActionText}>New conversation</Text></Pressable>
-            <Pressable style={styles.drawerItem} onPress={() => { setScreen("chat"); setDrawerOpen(false); }}><Text style={styles.drawerItemIcon}>⌂</Text><Text style={styles.drawerItemText}>Chat</Text></Pressable>
-            <Pressable style={styles.drawerItem} onPress={() => { setScreen("history"); setDrawerOpen(false); }}><Text style={styles.drawerItemIcon}>☷</Text><Text style={styles.drawerItemText}>Chat history</Text></Pressable>
-            <Pressable style={styles.drawerItem} onPress={() => { setScreen("tools"); setDrawerOpen(false); }}><Text style={styles.drawerItemIcon}>✣</Text><Text style={styles.drawerItemText}>AI tools</Text></Pressable>
-            <Text style={styles.drawerSection}>Recent conversations</Text>
+            <Pressable style={styles.drawerAction} onPress={newChat}><Text style={styles.drawerActionIcon}>＋</Text><Text style={styles.drawerActionText}>New chat</Text></Pressable>
+            <Pressable style={styles.drawerItem} onPress={() => { setScreen("history"); setDrawerOpen(false); }}><Text style={styles.drawerItemIcon}>⌕</Text><Text style={styles.drawerItemText}>Search conversations</Text></Pressable>
+            <Pressable style={styles.drawerItem} onPress={() => Alert.alert("Images", "Image creation tools are not connected in this version yet.")}><Text style={styles.drawerItemIcon}>▧</Text><Text style={styles.drawerItemText}>Images</Text></Pressable>
+            <Pressable style={styles.drawerItem} onPress={() => Alert.alert("Library", "Your saved-file library is not connected in this version yet.")}><Text style={styles.drawerItemIcon}>▤</Text><Text style={styles.drawerItemText}>Library</Text></Pressable>
+            <Pressable style={styles.drawerItem} onPress={() => Alert.alert("Customize", "Assistant customization is coming after this interface update.")}><Text style={styles.drawerItemIcon}>⚙</Text><Text style={styles.drawerItemText}>Customize</Text></Pressable>
+            <Pressable style={styles.drawerItem} onPress={() => Alert.alert("Projects", "Projects are not connected in this version yet.")}><Text style={styles.drawerItemIcon}>▣</Text><Text style={styles.drawerItemText}>Projects</Text></Pressable>
+            <Pressable style={styles.drawerItem} onPress={() => Alert.alert("Remote", "Remote workspace is not connected in this version yet.")}><Text style={styles.drawerItemIcon}>⌘</Text><Text style={styles.drawerItemText}>Remote</Text></Pressable>
+            <Pressable style={styles.drawerItem} onPress={() => { setScreen("tools"); setDrawerOpen(false); }}><Text style={styles.drawerItemIcon}>✣</Text><Text style={styles.drawerItemText}>Explore</Text></Pressable>
+            <Text style={styles.drawerSection}>Recent chats</Text>
             <ScrollView style={styles.drawerRecent}>
               {chats.slice(0, 12).map(chat => <Pressable key={chat.id} style={styles.drawerChat} onPress={() => { setActiveId(chat.id); setScreen("chat"); setDrawerOpen(false); }}>
                 <Text numberOfLines={1} style={styles.drawerChatText}>{chat.pinned ? "📌 " : ""}{chat.title}</Text>
@@ -435,9 +439,9 @@ const styles = StyleSheet.create({
   drawerBrand:{flexDirection:"row",alignItems:"center",gap:10},drawerAvatar:{width:39,height:39,borderRadius:20},drawerTitle:{fontSize:22,fontWeight:"900",color:"#17231B",letterSpacing:1},
   drawerClose:{width:34,height:34,borderRadius:17,backgroundColor:"#F1F5F2",alignItems:"center",justifyContent:"center"},
   drawerCloseText:{fontSize:22,color:"#27372C",lineHeight:24},
-  drawerAction:{flexDirection:"row",alignItems:"center",gap:12,paddingVertical:15,paddingHorizontal:13,backgroundColor:"#EAF5ED",borderRadius:13,marginTop:18,marginBottom:10},
+  drawerAction:{flexDirection:"row",alignItems:"center",gap:12,paddingVertical:13,paddingHorizontal:13,backgroundColor:"#F4F6F5",borderRadius:13,marginTop:18,marginBottom:10},
   drawerActionIcon:{fontSize:22,color:"#218B55"},drawerActionText:{fontSize:14,fontWeight:"800",color:"#245B3B"},
-  drawerItem:{flexDirection:"row",alignItems:"center",gap:13,paddingVertical:12,paddingHorizontal:10},
+  drawerItem:{flexDirection:"row",alignItems:"center",gap:13,paddingVertical:10,paddingHorizontal:10},
   drawerItemIcon:{fontSize:20,color:"#2C6844",width:24,textAlign:"center"},drawerItemText:{fontSize:14,fontWeight:"600",color:"#26372C"},
   drawerSection:{fontSize:11,fontWeight:"800",letterSpacing:1,color:"#87938A",marginTop:20,marginBottom:8,paddingHorizontal:10},
   drawerRecent:{flex:1},drawerChat:{paddingVertical:11,paddingHorizontal:10,borderRadius:10},drawerChatText:{fontSize:13,color:"#39483D"},
