@@ -3,7 +3,7 @@ import { handlePublicApi } from "./public-api.js";
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Dynex-Admin-Key",
   "Content-Type": "application/json; charset=utf-8"
 };
 
