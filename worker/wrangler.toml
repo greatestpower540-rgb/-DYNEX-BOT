@@ -2,5 +2,7 @@ name = "dynex-bot-ai5dcf"
 main = "src/index.js"
 compatibility_date = "2026-11-21"
 
+[previews]
+
 # Cloudflare Workers Git deployment configuration.
 # Trigger deployment using the worker directory configuration.
