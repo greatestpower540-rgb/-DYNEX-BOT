@@ -149,7 +149,7 @@ export default function App() {
         updateMessages(current => [...current, {
           id: makeId(),
           role: "assistant",
-          content: answer || "Here's your edited image.",
+          content: answer || (imageGenerate ? "Here is your generated image." : "Here is your edited image."),
           generatedImage: `data:${imageMime};base64,${data.image.data}`
         }]);
       } else {
