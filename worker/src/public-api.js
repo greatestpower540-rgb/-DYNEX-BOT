@@ -173,6 +173,24 @@ export async function handlePublicApi(request, env, url) {
     return apiJson({ object: "list", data: [{ id: "dynex-chat", object: "model", capabilities: ["text-generation"] }] });
   }
 
+  if (url.pathname === "/v1/usage" && request.method === "GET") {
+    const auth = await authenticate(request, env);
+    if (auth.error) return auth.error;
+    const today = new Date().toISOString().slice(0, 10);
+    const [key, usage] = await Promise.all([
+      env.DB.prepare("SELECT daily_limit, key_prefix, name, created_at, last_used_at FROM api_keys WHERE id = ?").bind(auth.keyId).first(),
+      env.DB.prepare("SELECT request_count FROM api_usage_daily WHERE api_key_id = ? AND usage_date = ?").bind(auth.keyId, today).first()
+    ]);
+    return apiJson({
+      object: "usage",
+      date: today,
+      requests_today: usage?.request_count || 0,
+      daily_limit: key.daily_limit,
+      remaining_today: Math.max(0, key.daily_limit - (usage?.request_count || 0)),
+      key: { prefix: key.key_prefix, name: key.name, created_at: key.created_at, last_used_at: key.last_used_at }
+    });
+  }
+
   if (url.pathname === "/v1/chat" && request.method === "POST") {
     const auth = await authenticate(request, env);
     if (auth.error) return auth.error;
