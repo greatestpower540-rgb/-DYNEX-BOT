@@ -119,7 +119,7 @@ async function rotateDeveloperKey(request, env) {
   const email = String(body?.email || "").trim().toLowerCase();
   const name = String(body?.name || "Replacement key").trim().slice(0, 80) || "Replacement key";
   const dailyLimit = Math.min(10000, Math.max(1, Number.parseInt(body?.daily_limit, 10) || 100));
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return apiJson({ error: "A valid developer email is required." }, 400);
   }
 
