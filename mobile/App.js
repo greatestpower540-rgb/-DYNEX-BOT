@@ -10,7 +10,7 @@ import {
   Alert, Keyboard, Share, Modal
 } from "react-native";
 
-const API_URL = "https://dynex-bot-ai5dcf.destinychukwudi209.workers.dev/chat";
+const API_URL = "https://chatgpt-ui-redesign-dynex-bot-ai5dcf.destinychukwudi209.workers.dev/chat";
 const makeId = () => String(Date.now()) + Math.random().toString(36).slice(2, 7);
 const starter = { id: "welcome", role: "assistant", content: "Hi! I'm DYNEX, your AI assistant. Ask me anything — I can explain ideas, help you write, learn, plan, and solve problems." };
 const tools = [
