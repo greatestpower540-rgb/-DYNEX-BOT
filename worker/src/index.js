@@ -39,6 +39,15 @@ export default {
       });
     }
 
+    // Lightweight route probes let us confirm these handlers are deployed without sending an image.
+    if (url.pathname === "/image-generate" && request.method === "GET") {
+      return json({ ok: true, endpoint: "image-generate", method: "POST", model: "gemini-nano-banana-2.1" });
+    }
+
+    if (url.pathname === "/image-edit" && request.method === "GET") {
+      return json({ ok: true, endpoint: "image-edit", method: "POST", model: "gemini-nano-banana-2.1" });
+    }
+
     if (url.pathname === "/image-generate" && request.method === "POST") {
       if (!env.GEMINI_API_KEY) return json({ error: "Gemini AI service is not configured." }, 503);
       let body;
