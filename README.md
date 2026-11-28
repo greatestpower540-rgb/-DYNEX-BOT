@@ -21,3 +21,8 @@ The chat UI is native React Native. Live AI replies require the Worker to be dep
 ## Local development
 
 From the `mobile` directory, install dependencies and run `npx expo start`.
+
+
+## DYNEX BOT API platform
+
+The developer portal is available at `developers.html`. API platform routes and Cloudflare D1 setup are documented in `worker/API_PLATFORM.md`. The API platform is a separate layer and preserves the existing mobile `/chat` endpoint.
