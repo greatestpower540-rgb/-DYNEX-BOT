@@ -21,12 +21,12 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    const platformResponse = await handleApiPlatform(request, env);
+    if (platformResponse) return platformResponse;
+
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors });
     }
-
-    const platformResponse = await handleApiPlatform(request, env);
-    if (platformResponse) return platformResponse;
 
     if (url.pathname === "/" && request.method === "GET") {
       return json({ ok: true, service: "DYNEX BOT AI", message: "DYNEX AI server is running." });
