@@ -1,3 +1,5 @@
+import { handleApiPlatform } from "./api-platform.js";
+
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -22,6 +24,9 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors });
     }
+
+    const platformResponse = await handleApiPlatform(request, env);
+    if (platformResponse) return platformResponse;
 
     if (url.pathname === "/" && request.method === "GET") {
       return json({ ok: true, service: "DYNEX BOT AI", message: "DYNEX AI server is running." });
