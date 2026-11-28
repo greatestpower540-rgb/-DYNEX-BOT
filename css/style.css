@@ -389,3 +389,6 @@ button {
   }
   }
     
+
+
+.developer-link{display:inline-flex;align-items:center;justify-content:center;padding:12px 17px;border:1px solid #26382b;border-radius:999px;background:#101a13;color:#285c16;text-decoration:none;font-size:12px;font-weight:800;white-space:nowrap;transition:.2s}.developer-link:hover{background:#a3ff45;color:#071009;border-color:#a3ff45}@media(max-width:520px){.developer-link{padding:10px 11px;font-size:10px}}

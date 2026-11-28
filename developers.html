@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071009">
+  <title>DYNEX BOT API — Developer Portal</title>
+  <link rel="stylesheet" href="css/developers.css">
+</head>
+<body>
+  <header class="top"><a class="brand" href="index.html"><span class="mark">D</span><span>DYNEX <b>BOT</b><small>DEVELOPER PLATFORM</small></span></a><nav><a href="#docs">Documentation</a><a href="#plans">Plans</a><a href="admin.html">Admin</a></nav></header>
+  <main>
+    <section class="hero"><div class="eyebrow">BUILD WITH DYNEX</div><h1>One API. Build <span>anything.</span></h1><p>Connect DYNEX intelligence to your apps, websites, agents and products using secure developer API keys.</p><div class="hero-actions"><a class="primary" href="#account">Get your API key</a><a class="secondary" href="#docs">Read the docs</a></div><div class="endpoint">POST <code>/v1/chat/completions</code></div></section>
+    <section id="account" class="workspace">
+      <div class="section-head"><div><div class="eyebrow">DEVELOPER CONSOLE</div><h2>Your API workspace</h2></div><span id="connection" class="status">Checking service…</span></div>
+      <div id="authPanel" class="panel auth-grid">
+        <form id="loginForm"><h3>Welcome back</h3><label>Email<input name="email" type="email" autocomplete="email" required></label><label>Password<input name="password" type="password" autocomplete="current-password" required></label><button class="primary" type="submit">Sign in</button><p id="loginMessage" class="message"></p></form>
+        <form id="registerForm"><h3>Create developer account</h3><label>Email<input name="email" type="email" autocomplete="email" required></label><label>Password<input name="password" type="password" minlength="10" autocomplete="new-password" required><small>At least 10 characters.</small></label><button class="secondary" type="submit">Create free account</button><p id="registerMessage" class="message"></p></form>
+      </div>
+      <div id="dashboard" hidden>
+        <div class="stats"><article class="panel"><small>PLAN</small><strong id="planValue">Free</strong></article><article class="panel"><small>MONTHLY REQUESTS</small><strong id="usageValue">0 / 1,000</strong></article><article class="panel"><small>ACTIVE API KEYS</small><strong id="keyCount">0</strong></article></div>
+        <div class="panel keys-panel"><div class="panel-title"><div><h3>API keys</h3><p>Create keys for your projects. The full key is shown only once.</p></div><button id="createKey" class="primary">＋ Create key</button></div><div id="newKey" class="new-key" hidden><strong>Copy your new key now</strong><code id="newKeyValue"></code><button id="copyKey" class="secondary">Copy key</button></div><div id="keysList" class="keys-list"><p class="muted">Loading keys…</p></div><button id="logout" class="quiet">Sign out</button></div>
+      </div>
+    </section>
+    <section id="plans"><div class="eyebrow">SIMPLE ACCESS</div><h2>Start free. Scale when ready.</h2><div class="plan-grid"><article class="panel"><span class="tag">FREE</span><h3>Developer</h3><div class="price">₦0 <small>/ month</small></div><p>Explore and prototype with DYNEX.</p><ul><li>1,000 API requests / month</li><li>Up to 5 active API keys</li><li>Chat Completions API</li><li>Community documentation</li></ul><strong class="included">Available on signup</strong></article><article class="panel featured"><span class="tag">PAID</span><h3>Scale</h3><div class="price">Coming soon</div><p>Higher limits for production workloads.</p><ul><li>50,000 API requests / month</li><li>Up to 5 active API keys</li><li>Usage monitoring</li><li>Priority support planned</li></ul><strong class="included">Activation by DYNEX admin</strong></article></div><p class="notice">Paid access is not charged or activated automatically. Billing and payment-provider integration must be configured before public paid subscriptions launch.</p></section>
+    <section id="docs"><div class="eyebrow">QUICK START</div><h2>Make your first API request</h2><p class="muted">Create a developer account, generate an API key, then call the DYNEX endpoint from your secure server.</p><div class="codebox"><div class="code-head">cURL · Chat Completions</div><pre><code>curl https://YOUR-WORKER.workers.dev/v1/chat/completions \
+  -H "Authorization: Bearer dnx_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "dynex-chat",
+    "messages": [
+      {"role": "user", "content": "Hello DYNEX"}
+    ]
+  }'</code></pre></div><div class="docs-grid"><article class="panel"><h3>Authentication</h3><p>Send your key in the Authorization Bearer header. Never place secret keys in browser code, public repositories or mobile app bundles.</p></article><article class="panel"><h3>Available endpoints</h3><p><code>POST /v1/chat/completions</code> — generate a response<br><code>GET /v1/models</code> — list available models</p></article></div></section>
+  </main>
+  <footer>DYNEX BOT API · BUILD WITH INTELLIGENCE</footer>
+  <script src="js/developers.js"></script>
+</body></html>
