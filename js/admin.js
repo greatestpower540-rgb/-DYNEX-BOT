@@ -169,6 +169,22 @@ const views = {
     </div>
   `,
 
+  api: `
+    <h2>DYNEX API Platform</h2>
+    <p>Manage developer access, free and paid plans, and API usage.</p>
+    <div class="panel">
+      <h3>Owner authorization</h3>
+      <label for="dynexAdminSecret">DYNEX admin secret</label>
+      <input id="dynexAdminSecret" type="password" autocomplete="off" placeholder="Enter the Cloudflare DYNEX_ADMIN_SECRET">
+      <button id="loadApiDevelopers" type="button">Load developer accounts</button>
+      <p id="apiAdminMessage">The secret is used only for this request and is not saved.</p>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>Developer accounts</h3>
+      <div id="apiDeveloperList" class="empty-state"><p>Authorize to view API developers.</p></div>
+    </div>
+  `,
+
   settings: `
     <h2>Platform Settings</h2>
     <p>Configure DYNEX BOT platform preferences.</p>
@@ -210,6 +226,8 @@ function showView(viewName) {
 
   sidebar.classList.remove("open");
 
+  if (viewName === "api") setupApiAdminView();
+
   adminContent.querySelectorAll("[data-go]").forEach(button => {
     button.addEventListener("click", () => {
       showView(button.dataset.go);
@@ -239,3 +257,56 @@ document.addEventListener("click", event => {
 });
 
 showView("overview");
+
+
+function setupApiAdminView() {
+  const loadButton = document.getElementById("loadApiDevelopers");
+  if (!loadButton) return;
+  loadButton.addEventListener("click", loadApiDevelopers);
+}
+async function loadApiDevelopers() {
+  const secret = document.getElementById("dynexAdminSecret")?.value || "";
+  const message = document.getElementById("apiAdminMessage");
+  const list = document.getElementById("apiDeveloperList");
+  if (!secret) { message.textContent = "Enter the DYNEX admin secret first."; return; }
+  message.textContent = "Loading developer accounts…";
+  try {
+    const response = await fetch("https://dynex-bot-ai5dcf.destinychukwudi209.workers.dev/admin/api/developers", {
+      headers: { "Authorization": "Bearer " + secret }
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Could not load developer accounts.");
+    list.innerHTML = "";
+    if (!data.developers?.length) { list.textContent = "No developer accounts yet."; message.textContent = "API platform connected."; return; }
+    const table = document.createElement("table");
+    table.innerHTML = "<thead><tr><th>Developer</th><th>Plan</th><th>Status</th><th>Monthly requests</th><th>Save</th></tr></thead>";
+    const tbody = document.createElement("tbody");
+    data.developers.forEach(dev => {
+      const tr = document.createElement("tr");
+      const email = document.createElement("td"); email.textContent = dev.email;
+      const planCell = document.createElement("td");
+      const plan = document.createElement("select");
+      [["free","Free"],["paid","Paid"]].forEach(([v,t])=>{const o=document.createElement("option");o.value=v;o.textContent=t;plan.appendChild(o);});
+      plan.value=dev.plan; planCell.appendChild(plan);
+      const statusCell = document.createElement("td");
+      const status = document.createElement("select");
+      [["active","Active"],["suspended","Suspended"]].forEach(([v,t])=>{const o=document.createElement("option");o.value=v;o.textContent=t;status.appendChild(o);});
+      status.value=dev.status; statusCell.appendChild(status);
+      const usage = document.createElement("td"); usage.textContent=String(dev.monthly_requests)+" requests · "+String(dev.active_keys)+" keys";
+      const action = document.createElement("td"); const save=document.createElement("button");save.textContent="Save";
+      save.addEventListener("click",async()=>{
+        save.disabled=true;
+        try {
+          const result=await fetch("https://dynex-bot-ai5dcf.destinychukwudi209.workers.dev/admin/api/developers/"+dev.id,{
+            method:"POST",headers:{"Authorization":"Bearer "+secret,"Content-Type":"application/json"},
+            body:JSON.stringify({plan:plan.value,status:status.value})
+          });
+          const payload=await result.json();if(!result.ok)throw new Error(payload.error||"Save failed.");
+          message.textContent="Updated "+dev.email+"."; 
+        } catch(error){message.textContent=error.message;} finally{save.disabled=false;}
+      });
+      action.appendChild(save);tr.append(email,planCell,statusCell,usage,action);tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);list.appendChild(table);message.textContent="Loaded "+data.developers.length+" developer accounts.";
+  } catch(error) { message.textContent=error.message; list.textContent="Unable to load developer accounts."; }
+}
